@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VZ // ACCESS TERMINAL</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-body">
+    <div class="glitch-overlay"></div>
+    <div class="noise-overlay"></div>
+    
+    <div class="login-container">
+        <div class="login-header">
+            <div class="header-glitch" data-text="ВОЗМЕЗДИЕ АИДА И КОСТИ">ВОЗМЕЗДИЕ АИДА И КОСТИ</div>
+            <div class="sub-header">VZ // CASE FILE 81 // RESTRICTED ACCESS</div>
+            <div class="lang-switcher">
+                <button class="lang-btn active" data-lang="ru">RU</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+                <button class="lang-btn" data-lang="fr">FR</button>
+            </div>
+        </div>
+        
+        <div class="login-box">
+            <div class="login-title" data-ru="ВХОД В СИСТЕМУ" data-en="SYSTEM ACCESS" data-fr="ACCÈS SYSTÈME">ВХОД В СИСТЕМУ</div>
+            
+            <div class="input-group">
+                <label class="input-label" data-ru="ЛОГИН" data-en="LOGIN" data-fr="IDENTIFIANT">ЛОГИН</label>
+                <input type="text" id="loginInput" class="login-input" placeholder="_ _ _ _ _ _ _ _ _ _ _ _" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label" data-ru="ПАРОЛЬ" data-en="PASSWORD" data-fr="MOT DE PASSE">ПАРОЛЬ</label>
+                <input type="password" id="passwordInput" class="login-input" placeholder="_ _ _ _ _ _ _ _ _ _ _ _" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            </div>
+            
+            <button class="login-btn" id="loginBtn">
+                <span class="btn-text" data-ru="АВТОРИЗАЦИЯ" data-en="AUTHORIZE" data-fr="AUTORISER">АВТОРИЗАЦИЯ</span>
+            </button>
+            
+            <div class="login-error" id="loginError"></div>
+        </div>
+        
+        <div class="login-footer">
+            <span class="footer-text">© 2024-2026 VZ // ВСЕ ПРАВА НЕ ЗАЩИЩЕНЫ</span>
+            <span class="morse-indicator">−···− ·····− ····−</span>
+        </div>
+    </div>
+    
+    <div class="modal" id="responseModal">
+        <div class="modal-content">
+            <div class="modal-text" id="modalText"></div>
+            <button class="modal-close" id="modalClose">×</button>
+        </div>
+    </div>
+    
+    <audio id="audioPlayer" loop></audio>
+    
+    <script src="script.js"></script>
+    <script src="audio.js"></script>
+</body>
+</html>
