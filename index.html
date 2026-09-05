@@ -5,15 +5,309 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VZ // ACCESS TERMINAL</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --bg: #000000;
+            --bg-dark: #0a0a0a;
+            --bg-darker: #050505;
+            --text: #e0e0e0;
+            --text-dim: #808080;
+            --accent: #8b0000;
+            --accent-bright: #ff0000;
+            --border: #1a1a1a;
+            --font-main: 'IBM Plex Mono', 'Courier New', monospace;
+            --font-term: 'VT323', 'Courier New', monospace;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: var(--text);
+            font-family: var(--font-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            cursor: crosshair;
+            user-select: none;
+        }
+        
+        .bg-noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0,0,0,0.03) 0px,
+                rgba(0,0,0,0.03) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            animation: noiseMove 0.5s infinite;
+        }
+        
+        @keyframes noiseMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100px; }
+        }
+        
+        .bg-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139,0,0,0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: glowPulse 3s infinite;
+        }
+        
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        .login-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .login-header {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .header-title {
+            font-family: var(--font-term);
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
+            font-weight: 700;
+            letter-spacing: 5px;
+            color: var(--text);
+            position: relative;
+            animation: textFlicker 2s infinite;
+        }
+        
+        .header-title::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            color: var(--accent-bright);
+            animation: glitch1 3s infinite linear alternate-reverse;
+            opacity: 0.5;
+        }
+        
+        @keyframes glitch1 {
+            0%, 90%, 100% { clip-path: inset(0 0 0 0); transform: translateX(0); }
+            91% { clip-path: inset(10% 0 60% 0); transform: translateX(-3px); }
+            93% { clip-path: inset(50% 0 20% 0); transform: translateX(3px); }
+            95% { clip-path: inset(80% 0 5% 0); transform: translateX(-2px); }
+            97% { clip-path: inset(30% 0 40% 0); transform: translateX(2px); }
+        }
+        
+        @keyframes textFlicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+            52% { opacity: 1; }
+            54% { opacity: 0.7; }
+            56% { opacity: 1; }
+        }
+        
+        .header-sub {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+        
+        .lang-switcher {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .lang-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 5px 15px;
+            font-family: var(--font-main);
+            font-size: 0.7rem;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        
+        .lang-btn:hover,
+        .lang-btn.active {
+            color: var(--accent-bright);
+            border-color: var(--accent);
+        }
+        
+        .login-box {
+            width: 100%;
+            background: rgba(10,10,10,0.9);
+            border: 1px solid var(--border);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .login-title {
+            text-align: center;
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text);
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .input-label {
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+        
+        .login-input {
+            background: var(--bg-darker);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px 15px;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            outline: none;
+            caret-color: var(--accent-bright);
+            transition: border-color 0.3s;
+        }
+        
+        .login-input:focus {
+            border-color: var(--accent);
+        }
+        
+        .login-btn {
+            background: var(--bg-darker);
+            border: 1px solid var(--accent);
+            color: var(--text);
+            padding: 14px 20px;
+            font-family: var(--font-main);
+            font-size: 0.8rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .login-btn:hover {
+            background: rgba(139,0,0,0.2);
+            border-color: var(--accent-bright);
+        }
+        
+        .login-error {
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--accent-bright);
+            min-height: 20px;
+            display: none;
+        }
+        
+        .login-footer {
+            text-align: center;
+            font-size: 0.55rem;
+            color: #404040;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: #0a0a0a;
+            border: 1px solid var(--accent);
+            padding: 40px;
+            max-width: 90%;
+            width: 500px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .modal-text {
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            line-height: 1.6;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .login-container { gap: 25px; }
+            .login-box { padding: 20px; }
+            .header-title { letter-spacing: 3px; }
+        }
+    </style>
 </head>
 <body class="login-body">
-    <div class="glitch-overlay"></div>
-    <div class="noise-overlay"></div>
+    <div class="bg-noise"></div>
+    <div class="bg-glow"></div>
     
     <div class="login-container">
         <div class="login-header">
-            <div class="header-glitch" data-text="ВОЗМЕЗДИЕ АИДА И КОСТИ">ВОЗМЕЗДИЕ АИДА И КОСТИ</div>
-            <div class="sub-header">VZ // CASE FILE 81 // RESTRICTED ACCESS</div>
+            <div class="header-title" data-text="ВОЗМЕЗДИЕ АИДА И КОСТИ">ВОЗМЕЗДИЕ АИДА И КОСТИ</div>
+            <div class="header-sub">VZ // CASE FILE 81 // RESTRICTED ACCESS</div>
             <div class="lang-switcher">
                 <button class="lang-btn active" data-lang="ru">RU</button>
                 <button class="lang-btn" data-lang="en">EN</button>
@@ -22,29 +316,24 @@
         </div>
         
         <div class="login-box">
-            <div class="login-title" data-ru="ВХОД В СИСТЕМУ" data-en="SYSTEM ACCESS" data-fr="ACCÈS SYSTÈME">ВХОД В СИСТЕМУ</div>
+            <div class="login-title">ВХОД В СИСТЕМУ</div>
             
             <div class="input-group">
-                <label class="input-label" data-ru="ЛОГИН" data-en="LOGIN" data-fr="IDENTIFIANT">ЛОГИН</label>
-                <input type="text" id="loginInput" class="login-input" placeholder="_ _ _ _ _ _ _ _ _ _ _ _" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <div class="input-label">ЛОГИН</div>
+                <input type="text" id="loginInput" class="login-input" placeholder="_ _ _ _ _ _ _ _ _ _" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             
             <div class="input-group">
-                <label class="input-label" data-ru="ПАРОЛЬ" data-en="PASSWORD" data-fr="MOT DE PASSE">ПАРОЛЬ</label>
-                <input type="password" id="passwordInput" class="login-input" placeholder="_ _ _ _ _ _ _ _ _ _ _ _" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <div class="input-label">ПАРОЛЬ</div>
+                <input type="password" id="passwordInput" class="login-input" placeholder="_ _ _ _ _ _ _ _ _ _" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             
-            <button class="login-btn" id="loginBtn">
-                <span class="btn-text" data-ru="АВТОРИЗАЦИЯ" data-en="AUTHORIZE" data-fr="AUTORISER">АВТОРИЗАЦИЯ</span>
-            </button>
+            <button class="login-btn" id="loginBtn">АВТОРИЗАЦИЯ</button>
             
             <div class="login-error" id="loginError"></div>
         </div>
         
-        <div class="login-footer">
-            <span class="footer-text">© 2024-2026 VZ // ВСЕ ПРАВА НЕ ЗАЩИЩЕНЫ</span>
-            <span class="morse-indicator">−···− ·····− ····−</span>
-        </div>
+        <div class="login-footer">© 2024-2026 VZ // ВСЕ ПРАВА НЕ ЗАЩИЩЕНЫ</div>
     </div>
     
     <div class="modal" id="responseModal">
@@ -54,9 +343,6 @@
         </div>
     </div>
     
-    <audio id="audioPlayer" loop></audio>
-    
     <script src="script.js"></script>
-    <script src="audio.js"></script>
 </body>
 </html>
