@@ -4,25 +4,166 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VZ // TERMINAL</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --bg: #000000;
+            --bg-dark: #0a0a0a;
+            --text: #e0e0e0;
+            --text-dim: #808080;
+            --accent: #8b0000;
+            --accent-bright: #ff0000;
+            --border: #1a1a1a;
+            --font-term: 'VT323', 'Courier New', monospace;
+            --font-main: 'IBM Plex Mono', 'Courier New', monospace;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: crosshair;
+            user-select: none;
+        }
+        
+        .terminal-container {
+            width: 95%;
+            max-width: 800px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+        
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #0a0a0a;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .terminal-title {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            font-family: var(--font-term);
+        }
+        
+        .terminal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-family: var(--font-main);
+        }
+        
+        .terminal-close:hover {
+            color: var(--accent-bright);
+        }
+        
+        .terminal-output {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-family: var(--font-term);
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+        
+        .terminal-line {
+            color: var(--text);
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        
+        .terminal-line.system {
+            color: var(--text-dim);
+        }
+        
+        .terminal-line.error {
+            color: var(--accent-bright);
+        }
+        
+        .terminal-line.success {
+            color: #00cc00;
+        }
+        
+        .terminal-line.secret {
+            color: #ff00ff;
+        }
+        
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: #050505;
+            border-top: 1px solid var(--border);
+            gap: 10px;
+        }
+        
+        .terminal-prompt {
+            font-family: var(--font-term);
+            font-size: 1.1rem;
+            color: var(--accent-bright);
+            white-space: nowrap;
+        }
+        
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: var(--font-term);
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            outline: none;
+            caret-color: var(--accent-bright);
+        }
+        
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+        }
+    </style>
 </head>
 <body class="terminal-body">
-    <div class="glitch-overlay"></div>
-    <div class="noise-overlay"></div>
-    
     <div class="terminal-container">
         <div class="terminal-header">
             <span class="terminal-title">VZ_TERMINAL v.2.0.26</span>
-            <button class="terminal-close" id="terminalClose">×</button>
+            <button class="terminal-close" onclick="window.location.href='vz-archive.html'">×</button>
         </div>
         
         <div class="terminal-output" id="terminalOutput">
-            <div class="terminal-line system">
-                VZ_TERMINAL v.2.0.26 // СОЕДИНЕНИЕ УСТАНОВЛЕНО
-            </div>
-            <div class="terminal-line system">
-                ВВЕДИТЕ "help" ДЛЯ СПИСКА КОМАНД
-            </div>
+            <div class="terminal-line system">VZ_TERMINAL v.2.0.26 // СОЕДИНЕНИЕ УСТАНОВЛЕНО</div>
+            <div class="terminal-line system">ВВЕДИТЕ "help" ДЛЯ СПИСКА КОМАНД</div>
         </div>
         
         <div class="terminal-input-line">
@@ -31,9 +172,295 @@
         </div>
     </div>
     
-    <audio id="audioPlayer" loop></audio>
+    <script>
+        (function() {
+            const terminalOutput = document.getElementById('terminalOutput');
+            const terminalInput = document.getElementById('terminalInput');
+            
+            const commands = {
+                help: {
+                    response: [
+                        'ДОСТУПНЫЕ КОМАНДЫ:',
+                        'help - список команд',
+                        'ls - список файлов',
+                        'open [файл] - открыть файл',
+                        'whois [имя] - досье',
+                        'status - статус системы',
+                        'clear - очистить экран',
+                        'exit - выход',
+                        'vz - информация о VZ',
+                        'gvr - информация о GVR',
+                        'aidos - об Аиде',
+                        'kostya - о Косте',
+                        'vitaly - о Виталии',
+                        '81 - дело №81',
+                        'sibirskaya - ул. Сибирская',
+                        'morse - морзе',
+                        'date - дата',
+                        'whoami - кто ты',
+                        'truth - правда'
+                    ],
+                    type: 'system'
+                },
+                ls: {
+                    response: [
+                        'files/:',
+                        '  aids.txt',
+                        '  kostya.txt',
+                        '  case81.txt',
+                        '  vitaly.txt',
+                        '  gvr.txt',
+                        '  morse.txt',
+                        '  shaman.txt [СКРЫТ]',
+                        '  kapysta.txt [СКРЫТ]',
+                        '  truth.txt [ЗАШИФРОВАНО]'
+                    ],
+                    type: 'system'
+                },
+                'open aids.txt': {
+                    response: [
+                        'ФАЙЛ: aids.txt',
+                        'ИМЯ: Дмитрий (Аид)',
+                        'СТАТУС: ПОГИБ',
+                        'ДАТА: 25.05.1999 - 01.08.2024',
+                        'ПОСЛЕДНЕЕ СООБЩЕНИЕ: «...»'
+                    ],
+                    type: 'success'
+                },
+                'open kostya.txt': {
+                    response: [
+                        'ФАЙЛ: kostya.txt',
+                        'ИМЯ: Константин (Костя)',
+                        'СТАТУС: ПОГИБ',
+                        'ДАТА: 04.12.2002 - 01.08.2024',
+                        'ПОСЛЕДНЕЕ СООБЩЕНИЕ: «...»'
+                    ],
+                    type: 'success'
+                },
+                'open case81.txt': {
+                    response: [
+                        'ДЕЛО №81',
+                        'АДРЕС: Нижний Тагил, ул. Сибирская, 81',
+                        'СОБЫТИЕ: Взрыв газовоздушной смеси',
+                        'ДАТА: 01.08.2024',
+                        'ПОГИБШИЕ: 11 человек',
+                        'ПОДОЗРЕВАЕМЫЕ: неизвестные в форме газовой службы'
+                    ],
+                    type: 'success'
+                },
+                'open vitaly.txt': {
+                    response: [
+                        'ФАЙЛ: vitaly.txt',
+                        'ИМЯ: Виталий Андреевич Шнайдер',
+                        'СТАТУС: ВЫЖИЛ',
+                        'ДИАГНОЗ: ПТСР',
+                        'ПСИХБОЛЬНИЦА: ГАУЗ СО «ПБ №7»',
+                        'ВЫПИСАН: 02.07.2026'
+                    ],
+                    type: 'success'
+                },
+                'open gvr.txt': {
+                    response: [
+                        'GVR - специализированная команда',
+                        'ОСНОВАТЕЛЬ: Виталий Шнайдер',
+                        'ДЕЯТЕЛЬНОСТЬ: спонсирование, информация, рейды',
+                        'СТАТУС: АКТИВНА'
+                    ],
+                    type: 'success'
+                },
+                'open shaman.txt': {
+                    response: [
+                        'ДОСТУП ЗАПРЕЩЁН.',
+                        'НУЖЕН ДРУГОЙ УРОВЕНЬ ДОСТУПА.'
+                    ],
+                    type: 'error'
+                },
+                'open kapysta.txt': {
+                    response: [
+                        'КАПУСТА — ЭТО НЕ ОВОЩ.',
+                        'КАПУСТА — ЭТО СОСТОЯНИЕ ДУШИ.'
+                    ],
+                    type: 'secret'
+                },
+                'open truth.txt': {
+                    response: [
+                        'ФАЙЛ ЗАШИФРОВАН.',
+                        'НУЖЕН ДОПОЛНИТЕЛЬНЫЙ ПАРОЛЬ.',
+                        'ПОДСКАЗКА: дата, когда всё началось.'
+                    ],
+                    type: 'error'
+                },
+                'open morse.txt': {
+                    response: [
+                        'МОРЗЕ-СИГНАЛ:',
+                        '... --- ...',
+                        'ПЕРЕВОД: SOS',
+                        '-...- . ...--',
+                        'ПЕРЕВОД: VZ'
+                    ],
+                    type: 'success'
+                },
+                status: {
+                    response: [
+                        'СИСТЕМА: АКТИВНА',
+                        'ПОДКЛЮЧЕНИЕ: СТАБИЛЬНОЕ',
+                        'ПОЛЬЗОВАТЕЛЬ: ' + (sessionStorage.getItem('vz_login') || 'НЕИЗВЕСТНЫЙ'),
+                        'УРОВЕНЬ ДОСТУПА: ' + (sessionStorage.getItem('vz_access_level') || 'НЕОПРЕДЕЛЁН')
+                    ],
+                    type: 'system'
+                },
+                clear: {
+                    clear: true
+                },
+                exit: {
+                    response: [
+                        'ВЫХОД НЕВОЗМОЖЕН.',
+                        'ВЫ УЖЕ ЗДЕСЬ.'
+                    ],
+                    type: 'error'
+                },
+                vz: {
+                    response: [
+                        'Возмездие Аида и Кости.',
+                        'Создано: 18.06.2024.',
+                        'Основатели: Дмитрий (Аид) и Константин (Костя).',
+                        'Статус: активен.'
+                    ],
+                    type: 'system'
+                },
+                gvr: {
+                    response: [
+                        'Global Victory Resistance.',
+                        'Основатель: Виталий Шнайдер.',
+                        'Роль в VZ: спонсор.'
+                    ],
+                    type: 'system'
+                },
+                aidos: {
+                    response: [
+                        'Аид (Дмитрий).',
+                        '25.05.1999 - 01.08.2024.',
+                        'Погиб при взрыве дома №81.',
+                        'Или нет?'
+                    ],
+                    type: 'success'
+                },
+                kostya: {
+                    response: [
+                        'Костя (Константин).',
+                        '04.12.2002 - 01.08.2024.',
+                        'Погиб при взрыве дома №81.',
+                        'Или нет?'
+                    ],
+                    type: 'success'
+                },
+                vitaly: {
+                    response: [
+                        'Виталий Шнайдер.',
+                        'Выжил.',
+                        'ПТСР.',
+                        'Он знает больше, чем говорит.'
+                    ],
+                    type: 'success'
+                },
+                '81': {
+                    response: [
+                        'ДЕЛО №81.',
+                        'Сибирская 81.',
+                        'Взрыв 01.08.2024.',
+                        '11 погибших.',
+                        '6 детей.'
+                    ],
+                    type: 'system'
+                },
+                sibirskaya: {
+                    response: [
+                        'ул. Сибирская, 81.',
+                        'Нижний Тагил.',
+                        'Там всё произошло.'
+                    ],
+                    type: 'system'
+                },
+                morse: {
+                    response: [
+                        '... --- ...  -...- . ...--',
+                        'SOS VZ'
+                    ],
+                    type: 'success'
+                },
+                date: {
+                    response: [
+                        'ТЕКУЩАЯ ДАТА: ' + new Date().toLocaleString('ru-RU')
+                    ],
+                    type: 'system'
+                },
+                whoami: {
+                    response: [
+                        'ТЫ — ТОТ, КТО ДОЛЖЕН БЫЛ ЭТО НАЙТИ.'
+                    ],
+                    type: 'success'
+                },
+                truth: {
+                    response: [
+                        'ПРАВДА:',
+                        'АИД И КОСТЯ МЕРТВЫ.',
+                        'НО КАНАЛ ПРОДОЛЖАЕТ РАБОТАТЬ.',
+                        'КТО-ТО ВЕДЁТ ЕГО.',
+                        'КТО-ТО ЗНАЕТ.',
+                        'КТО-ТО МОЛЧИТ.'
+                    ],
+                    type: 'secret'
+                }
+            };
+            
+            terminalInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const input = terminalInput.value.trim().toLowerCase();
+                    terminalInput.value = '';
+                    
+                    const promptLine = document.createElement('div');
+                    promptLine.className = 'terminal-line';
+                    promptLine.textContent = 'user@vz:~$ ' + input;
+                    terminalOutput.appendChild(promptLine);
+                    
+                    if (input === 'clear') {
+                        terminalOutput.innerHTML = '';
+                        scrollToBottom();
+                        return;
+                    }
+                    
+                    const response = commands[input];
+                    if (response && response.response) {
+                        response.response.forEach(function(line) {
+                            const lineEl = document.createElement('div');
+                            lineEl.className = 'terminal-line ' + (response.type || '');
+                            lineEl.textContent = line;
+                            terminalOutput.appendChild(lineEl);
+                        });
+                    } else if (response && response.clear) {
+                        // Уже обработано выше
+                    } else {
+                        const errEl = document.createElement('div');
+                        errEl.className = 'terminal-line error';
+                        errEl.textContent = 'КОМАНДА НЕ НАЙДЕНА. ВВЕДИТЕ help.';
+                        terminalOutput.appendChild(errEl);
+                    }
+                    
+                    scrollToBottom();
+                }
+            });
+            
+            function scrollToBottom() {
+                terminalOutput.scrollTop = terminalOutput.scrollHeight;
+            }
+            
+            terminalInput.focus();
+            terminalOutput.addEventListener('click', function() {
+                terminalInput.focus();
+            });
+        })();
+    </script>
     
-    <script src="script.js"></script>
     <script src="audio.js"></script>
 </body>
 </html>
