@@ -518,7 +518,283 @@ function loadContent(page, accessId) {
     contentArea.innerHTML = content;
     contentArea.classList.add('active');
     
-    // Обработка секретного пароля
+        // Обработка секретного пароля
     if (page === 'restricted') {
         const restrictedBtn = document.getElementById('restrictedBtn');
-        const restrictedPassword = document.getElementById(
+        const restrictedPassword = document.getElementById('restrictedPassword');
+        
+        if (restrictedBtn && restrictedPassword) {
+            restrictedBtn.addEventListener('click', function() {
+                const pwd = restrictedPassword.value.trim();
+                if (pwd === '020760' || pwd === '012812' || pwd === '1813') {
+                    restrictedPassword.value = '';
+                    restrictedPassword.placeholder = 'ДОСТУП РАЗРЕШЁН';
+                    loadSecretFiles(accessId);
+                } else {
+                    restrictedPassword.value = '';
+                    restrictedPassword.placeholder = 'НЕВЕРНЫЙ ПАРОЛЬ. БЛЯТЬ.';
+                }
+            });
+            restrictedPassword.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const pwd = restrictedPassword.value.trim();
+                    if (pwd === '020760' || pwd === '012812' || pwd === '1813') {
+                        restrictedPassword.value = '';
+                        restrictedPassword.placeholder = 'ДОСТУП РАЗРЕШЁН';
+                        loadSecretFiles(accessId);
+                    } else {
+                        restrictedPassword.value = '';
+                        restrictedPassword.placeholder = 'НЕВЕРНЫЙ ПАРОЛЬ. БЛЯТЬ.';
+                    }
+                }
+            });
+        }
+    }
+}
+
+// ============ СЕКРЕТНЫЕ ФАЙЛЫ ============
+function loadSecretFiles(accessId) {
+    const contentArea = document.getElementById('contentArea');
+    if (!contentArea) return;
+    
+    let content = `
+        <h2 class="content-title" style="color: #ff0000;">СЕКРЕТНЫЕ ФАЙЛЫ</h2>
+        <div class="secret-warning">ВНИМАНИЕ! ДАЛЬНЕЙШЕЕ ЧТЕНИЕ МОЖЕТ ИЗМЕНИТЬ ВАШЕ ВОСПРИЯТИЕ РЕАЛЬНОСТИ.</div>
+    `;
+    
+    if (accessId === 'gvr' || accessId === 'shaman' || accessId === 'aidkostya') {
+        content += `
+            <div class="file-card secret">
+                <div class="file-header">ФАЙЛ: INTERCEPTED_MESSAGE.txt</div>
+                <div class="file-body">
+                    <p class="glitch-text">"Они не умерли. Они просто перестали быть теми, кем были."</p>
+                    <p class="glitch-text">"Виталий видел их после взрыва."</p>
+                    <p class="glitch-text">"GVR — это не просто команда. Это прикрытие."</p>
+                </div>
+            </div>
+            <div class="file-card secret">
+                <div class="file-header">ФАЙЛ: FINAL_MESSAGE.txt</div>
+                <div class="file-body">
+                    <p>"Если ты это читаешь, значит ты уже слишком глубоко."</p>
+                    <p>"Возмездие продолжается."</p>
+                    <p>"— Аид и Костя"</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    if (accessId === 'aidkostya') {
+        content += `
+            <div class="file-card secret-ultimate">
+                <div class="file-header">ФАЙЛ: THE_TRUTH.txt</div>
+                <div class="file-body">
+                    <p>МЫ ЖИВЫ.</p>
+                    <p>МЫ ВСЕГДА БЫЛИ ЖИВЫ.</p>
+                    <p>ВЗРЫВ — ЭТО ПРИКРЫТИЕ.</p>
+                    <p>ВИТАЛИЙ ЗНАЕТ.</p>
+                    <p>ТЕПЕРЬ ЗНАЕШЬ И ТЫ.</p>
+                    <p>НЕ РАССКАЗЫВАЙ НИКОМУ.</p>
+                    <p>— А. и К.</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    contentArea.innerHTML = content;
+}
+
+// ============ ИНИЦИАЛИЗАЦИЯ ТЕРМИНАЛА ============
+function initTerminal() {
+    const terminalOutput = document.getElementById('terminalOutput');
+    const terminalInput = document.getElementById('terminalInput');
+    const terminalClose = document.getElementById('terminalClose');
+    
+    if (terminalClose) {
+        terminalClose.addEventListener('click', function() {
+            window.location.href = 'main.html';
+        });
+    }
+    
+    const commands = {
+        help: {
+            response: [
+                'ДОСТУПНЫЕ КОМАНДЫ:',
+                'help - показать этот список',
+                'ls - список файлов',
+                'open [файл] - открыть файл',
+                'whois [имя] - досье на человека',
+                'status - статус системы',
+                'clear - очистить экран',
+                'exit - выйти',
+                'vz - информация о VZ',
+                'gvr - информация о GVR',
+                'aidos - информация об Аиде',
+                'kostya - информация о Косте',
+                'vitaly - информация о Виталии',
+                '81 - дело №81',
+                'sibirskaya - ул. Сибирская',
+                'morse - прослушать морзе',
+                'date - текущая дата',
+                'whoami - кто ты'
+            ],
+            type: 'system'
+        },
+        ls: {
+            response: [
+                'files/:',
+                '  aids.txt',
+                '  kostya.txt',
+                '  case81.txt',
+                '  vitaly.txt',
+                '  gvr.txt',
+                '  morse.txt',
+                '  truth.txt [ЗАШИФРОВАНО]'
+            ],
+            type: 'system'
+        },
+        'open aids.txt': {
+            response: ['ФАЙЛ: aids.txt', 'ИМЯ: Дмитрий (Аид)', 'СТАТУС: ПОГИБ', 'ДАТА: 25.05.1999 - 01.08.2024', 'ПОСЛЕДНЕЕ СООБЩЕНИЕ: "Костя, блять..."'],
+            type: 'success'
+        },
+        'open kostya.txt': {
+            response: ['ФАЙЛ: kostya.txt', 'ИМЯ: Константин (Костя)', 'СТАТУС: ПОГИБ', 'ДАТА: 04.12.2002 - 01.08.2024', 'ПОСЛЕДНЕЕ СООБЩЕНИЕ: "Аид, блять..."'],
+            type: 'success'
+        },
+        'open case81.txt': {
+            response: ['ДЕЛО №81', 'АДРЕС: Нижний Тагил, ул. Сибирская, 81', 'СОБЫТИЕ: Взрыв газовоздушной смеси', 'ДАТА: 01.08.2024', 'ПОГИБШИЕ: 11 человек', 'ПОДОЗРЕВАЕМЫЕ: неизвестные в форме газовой службы'],
+            type: 'success'
+        },
+        'open vitaly.txt': {
+            response: ['ФАЙЛ: vitaly.txt', 'ИМЯ: Виталий Андреевич Шнайдер', 'СТАТУС: ВЫЖИЛ', 'ДИАГНОЗ: ПТСР', 'ПСИХБОЛЬНИЦА: ГАУЗ СО "ПБ №7"', 'ПРЕПАРАТЫ: гидроксизин, кветиапин, ламотриджин', 'ВЫПИСАН: 02.07.2026'],
+            type: 'success'
+        },
+        'open gvr.txt': {
+            response: ['GVR - Global Victory Resistance', 'ОСНОВАТЕЛЬ: Виталий Шнайдер', 'ДЕЯТЕЛЬНОСТЬ: помощь командам, рейды, информация, спонсирование', 'СТАТУС: АКТИВНА'],
+            type: 'success'
+        },
+        'open morse.txt': {
+            response: ['МОРЗЕ-СИГНАЛ:', '... --- ...', 'ПЕРЕВОД: SOS', 'ДОПОЛНИТЕЛЬНЫЙ СИГНАЛ:', '-...- . ...--', 'ПЕРЕВОД: VZ'],
+            type: 'success'
+        },
+        'open truth.txt': {
+            response: ['ФАЙЛ ЗАШИФРОВАН.', 'НУЖЕН ДОПОЛНИТЕЛЬНЫЙ ПАРОЛЬ.', 'ПОДСКАЗКА: дата, когда всё началось.'],
+            type: 'error'
+        },
+        status: {
+            response: ['СИСТЕМА: АКТИВНА', 'ПОДКЛЮЧЕНИЕ: СТАБИЛЬНОЕ', 'АРХИВ: ДОСТУПЕН', 'ПОЛЬЗОВАТЕЛЬ: ' + (sessionStorage.getItem('vz_login') || 'НЕИЗВЕСТНЫЙ'), 'УРОВЕНЬ ДОСТУПА: ' + (sessionStorage.getItem('vz_access_level') || 'НЕОПРЕДЕЛЁН')],
+            type: 'system'
+        },
+        clear: {
+            clear: true
+        },
+        exit: {
+            response: ['ВЫХОД НЕВОЗМОЖЕН.', 'ВЫ УЖЕ ЗДЕСЬ.'],
+            type: 'error'
+        },
+        vz: {
+            response: ['Возмездие Аида и Кости.', 'Создано: 18.06.2024.', 'Основатели: Дмитрий (Аид) и Константин (Костя).', 'Статус: активен.'],
+            type: 'system'
+        },
+        gvr: {
+            response: ['Global Victory Resistance.', 'Основатель: Виталий Шнайдер.', 'Роль в VZ: спонсор.', 'Подробности: open gvr.txt'],
+            type: 'system'
+        },
+        aidos: {
+            response: ['Аид (Дмитрий).', '25.05.1999 - 01.08.2024.', 'Погиб при взрыве дома №81.', 'Или нет?'],
+            type: 'success'
+        },
+        kostya: {
+            response: ['Костя (Константин).', '04.12.2002 - 01.08.2024.', 'Погиб при взрыве дома №81.', 'Или нет?'],
+            type: 'success'
+        },
+        vitaly: {
+            response: ['Виталий Шнайдер.', 'Выжил.', 'ПТСР.', 'Он знает больше, чем говорит.'],
+            type: 'success'
+        },
+        '81': {
+            response: ['ДЕЛО №81.', 'Сибирская 81.', 'Взрыв 01.08.2024.', '11 погибших.', '6 детей.', 'Дом снесён 01.10.2024.'],
+            type: 'system'
+        },
+        sibirskaya: {
+            response: ['ул. Сибирская, 81.', 'Нижний Тагил.', 'Там всё произошло.'],
+            type: 'system'
+        },
+        morse: {
+            response: ['... --- ...  -...- . ...--', 'SOS VZ'],
+            type: 'success'
+        },
+        date: {
+            response: ['ТЕКУЩАЯ ДАТА: ' + new Date().toLocaleString('ru-RU')],
+            type: 'system'
+        },
+        whoami: {
+            response: ['ТЫ — ТОТ, КТО ДОЛЖЕН БЫЛ ЭТО НАЙТИ.'],
+            type: 'success'
+        }
+    };
+    
+    terminalInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const input = terminalInput.value.trim().toLowerCase();
+            terminalInput.value = '';
+            
+            // Вывод введённой команды
+            const promptLine = document.createElement('div');
+            promptLine.className = 'terminal-line';
+            promptLine.textContent = 'user@vz:~$ ' + input;
+            terminalOutput.appendChild(promptLine);
+            
+            // Обработка
+            if (input === 'clear') {
+                terminalOutput.innerHTML = '';
+                scrollToBottom();
+                return;
+            }
+            
+            let response = commands[input];
+            if (!response) {
+                response = {
+                    response: ['КОМАНДА НЕ НАЙДЕНА.', 'ВВЕДИТЕ help ДЛЯ СПИСКА КОМАНД.'],
+                    type: 'error'
+                };
+            }
+            
+            if (response.response) {
+                response.response.forEach(line => {
+                    const lineEl = document.createElement('div');
+                    lineEl.className = 'terminal-line ' + (response.type || '');
+                    lineEl.textContent = line;
+                    terminalOutput.appendChild(lineEl);
+                });
+            }
+            
+            scrollToBottom();
+        }
+    });
+    
+    function scrollToBottom() {
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+    
+    // Фокус на ввод
+    terminalInput.focus();
+    terminalOutput.addEventListener('click', function() {
+        terminalInput.focus();
+    });
+    
+    // Морзе
+    setInterval(() => {
+        const morseIndicator = document.querySelector('.morse-indicator');
+        if (morseIndicator) {
+            morseIndicator.textContent = '... --- ...';
+            setTimeout(() => {
+                morseIndicator.textContent = '-...- . ...--';
+            }, 500);
+        }
+    }, 2000);
+}
+
+// ============ УДАЛЕНИЕ СЕССИИ ПРИ ВЫХОДЕ ============
+window.addEventListener('beforeunload', function() {
+    // Сессия сохраняется
+});
