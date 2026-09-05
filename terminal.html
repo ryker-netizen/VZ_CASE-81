@@ -10,8 +10,10 @@
         :root {
             --bg: #000000;
             --bg-dark: #0a0a0a;
+            --bg-darker: #050505;
             --text: #e0e0e0;
             --text-dim: #808080;
+            --text-faint: #404040;
             --accent: #8b0000;
             --accent-bright: #ff0000;
             --border: #1a1a1a;
@@ -39,15 +41,71 @@
             user-select: none;
         }
         
-        .terminal-container {
+        .terminal-wrapper {
             width: 95%;
-            max-width: 800px;
-            height: 90vh;
+            max-width: 900px;
+            height: 92vh;
             display: flex;
-            flex-direction: column;
+            gap: 0;
             background: #000;
             border: 1px solid var(--border);
             position: relative;
+        }
+        
+        .terminal-sidebar {
+            width: 220px;
+            background: #050505;
+            border-right: 1px solid var(--border);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-title {
+            font-family: var(--font-term);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--accent-bright);
+            text-transform: uppercase;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .command-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .command-item {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            padding: 5px 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            border: 1px solid transparent;
+        }
+        
+        .command-item:hover {
+            color: var(--accent-bright);
+            background: rgba(139,0,0,0.1);
+            border-color: var(--border);
+        }
+        
+        .command-item .cmd {
+            color: var(--text);
+            font-weight: 700;
+        }
+        
+        .terminal-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
         }
         
         .terminal-header {
@@ -57,6 +115,7 @@
             padding: 10px 15px;
             background: #0a0a0a;
             border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
         }
         
         .terminal-title {
@@ -73,6 +132,7 @@
             font-size: 1.2rem;
             cursor: pointer;
             font-family: var(--font-main);
+            transition: color 0.3s;
         }
         
         .terminal-close:hover {
@@ -87,14 +147,21 @@
             flex-direction: column;
             gap: 5px;
             font-family: var(--font-term);
-            font-size: 1.1rem;
+            font-size: 1rem;
             letter-spacing: 1px;
+            min-height: 0;
         }
         
         .terminal-line {
             color: var(--text);
             line-height: 1.4;
             word-wrap: break-word;
+            animation: lineIn 0.2s;
+        }
+        
+        @keyframes lineIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .terminal-line.system {
@@ -113,6 +180,18 @@
             color: #ff00ff;
         }
         
+        .terminal-line.chat-aidos {
+            color: #ff6060;
+            padding-left: 10px;
+            border-left: 2px solid #ff6060;
+        }
+        
+        .terminal-line.chat-kostya {
+            color: #6060ff;
+            padding-left: 10px;
+            border-left: 2px solid #6060ff;
+        }
+        
         .terminal-input-line {
             display: flex;
             align-items: center;
@@ -120,11 +199,12 @@
             background: #050505;
             border-top: 1px solid var(--border);
             gap: 10px;
+            flex-shrink: 0;
         }
         
         .terminal-prompt {
             font-family: var(--font-term);
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--accent-bright);
             white-space: nowrap;
         }
@@ -135,14 +215,14 @@
             border: none;
             color: var(--text);
             font-family: var(--font-term);
-            font-size: 1.1rem;
+            font-size: 1rem;
             letter-spacing: 1px;
             outline: none;
             caret-color: var(--accent-bright);
         }
         
         ::-webkit-scrollbar {
-            width: 5px;
+            width: 4px;
         }
         
         ::-webkit-scrollbar-track {
@@ -152,23 +232,77 @@
         ::-webkit-scrollbar-thumb {
             background: var(--accent);
         }
+        
+        @media (max-width: 768px) {
+            .terminal-wrapper {
+                flex-direction: column;
+                height: 95vh;
+            }
+            
+            .terminal-sidebar {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 8px;
+                gap: 5px;
+                flex-shrink: 0;
+            }
+            
+            .sidebar-title {
+                display: none;
+            }
+            
+            .command-list {
+                flex-direction: row;
+                gap: 5px;
+            }
+            
+            .command-item {
+                white-space: nowrap;
+                font-size: 0.6rem;
+                padding: 4px 8px;
+            }
+        }
     </style>
 </head>
 <body class="terminal-body">
-    <div class="terminal-container">
-        <div class="terminal-header">
-            <span class="terminal-title">VZ_TERMINAL v.2.0.26</span>
-            <button class="terminal-close" onclick="window.location.href='vz-archive.html'">×</button>
+    <div class="terminal-wrapper">
+        <div class="terminal-sidebar">
+            <div class="sidebar-title">КОМАНДЫ</div>
+            <div class="command-list" id="commandList">
+                <div class="command-item" data-cmd="help"><span class="cmd">help</span> — список</div>
+                <div class="command-item" data-cmd="ls"><span class="cmd">ls</span> — файлы</div>
+                <div class="command-item" data-cmd="status"><span class="cmd">status</span> — система</div>
+                <div class="command-item" data-cmd="vz"><span class="cmd">vz</span> — о VZ</div>
+                <div class="command-item" data-cmd="aidos"><span class="cmd">aidos</span> — Аид</div>
+                <div class="command-item" data-cmd="kostya"><span class="cmd">kostya</span> — Костя</div>
+                <div class="command-item" data-cmd="vitaly"><span class="cmd">vitaly</span> — Виталий</div>
+                <div class="command-item" data-cmd="81"><span class="cmd">81</span> — дело</div>
+                <div class="command-item" data-cmd="morse"><span class="cmd">morse</span> — морзе</div>
+                <div class="command-item" data-cmd="chat"><span class="cmd">chat</span> — переписка</div>
+                <div class="command-item" data-cmd="truth"><span class="cmd">truth</span> — правда</div>
+                <div class="command-item" data-cmd="clear"><span class="cmd">clear</span> — очистить</div>
+            </div>
         </div>
         
-        <div class="terminal-output" id="terminalOutput">
-            <div class="terminal-line system">VZ_TERMINAL v.2.0.26 // СОЕДИНЕНИЕ УСТАНОВЛЕНО</div>
-            <div class="terminal-line system">ВВЕДИТЕ "help" ДЛЯ СПИСКА КОМАНД</div>
-        </div>
-        
-        <div class="terminal-input-line">
-            <span class="terminal-prompt">user@vz:~$</span>
-            <input type="text" id="terminalInput" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="terminal-main">
+            <div class="terminal-header">
+                <span class="terminal-title">VZ_TERMINAL v.2.0.26</span>
+                <button class="terminal-close" onclick="window.location.href='vz-archive.html'">×</button>
+            </div>
+            
+            <div class="terminal-output" id="terminalOutput">
+                <div class="terminal-line system">VZ_TERMINAL v.2.0.26 // СОЕДИНЕНИЕ УСТАНОВЛЕНО</div>
+                <div class="terminal-line system">НАЖМИТЕ НА КОМАНДУ СЛЕВА ИЛИ ВВЕДИТЕ ВРУЧНУЮ</div>
+            </div>
+            
+            <div class="terminal-input-line">
+                <span class="terminal-prompt">user@vz:~$</span>
+                <input type="text" id="terminalInput" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="...">
+            </div>
         </div>
     </div>
     
@@ -176,288 +310,195 @@
         (function() {
             const terminalOutput = document.getElementById('terminalOutput');
             const terminalInput = document.getElementById('terminalInput');
+            const commandList = document.getElementById('commandList');
             
             const commands = {
                 help: {
-                    response: [
-                        'ДОСТУПНЫЕ КОМАНДЫ:',
-                        'help - список команд',
-                        'ls - список файлов',
-                        'open [файл] - открыть файл',
-                        'whois [имя] - досье',
-                        'status - статус системы',
-                        'clear - очистить экран',
-                        'exit - выход',
-                        'vz - информация о VZ',
-                        'gvr - информация о GVR',
-                        'aidos - об Аиде',
-                        'kostya - о Косте',
-                        'vitaly - о Виталии',
-                        '81 - дело №81',
-                        'sibirskaya - ул. Сибирская',
-                        'morse - морзе',
-                        'date - дата',
-                        'whoami - кто ты',
-                        'truth - правда'
-                    ],
+                    response: ['ДОСТУПНЫЕ КОМАНДЫ:', 'help, ls, status, clear, exit', 'vz, gvr, aidos, kostya, vitaly', '81, sibirskaya, morse, date, whoami', 'chat — переписка с Аидом и Костей', 'truth — правда'],
                     type: 'system'
                 },
                 ls: {
-                    response: [
-                        'files/:',
-                        '  aids.txt',
-                        '  kostya.txt',
-                        '  case81.txt',
-                        '  vitaly.txt',
-                        '  gvr.txt',
-                        '  morse.txt',
-                        '  shaman.txt [СКРЫТ]',
-                        '  kapysta.txt [СКРЫТ]',
-                        '  truth.txt [ЗАШИФРОВАНО]'
-                    ],
+                    response: ['files/:', '  aids.txt  kostya.txt  case81.txt', '  vitaly.txt  gvr.txt  morse.txt', '  shaman.txt [СКРЫТ]', '  kapysta.txt [СКРЫТ]', '  truth.txt [ЗАШИФРОВАНО]'],
                     type: 'system'
                 },
                 'open aids.txt': {
-                    response: [
-                        'ФАЙЛ: aids.txt',
-                        'ИМЯ: Дмитрий (Аид)',
-                        'СТАТУС: ПОГИБ',
-                        'ДАТА: 25.05.1999 - 01.08.2024',
-                        'ПОСЛЕДНЕЕ СООБЩЕНИЕ: «...»'
-                    ],
+                    response: ['Дмитрий (Аид). 25.05.1999 - 01.08.2024.', 'СТАТУС: ПОГИБ.'],
                     type: 'success'
                 },
                 'open kostya.txt': {
-                    response: [
-                        'ФАЙЛ: kostya.txt',
-                        'ИМЯ: Константин (Костя)',
-                        'СТАТУС: ПОГИБ',
-                        'ДАТА: 04.12.2002 - 01.08.2024',
-                        'ПОСЛЕДНЕЕ СООБЩЕНИЕ: «...»'
-                    ],
+                    response: ['Константин (Костя). 04.12.2002 - 01.08.2024.', 'СТАТУС: ПОГИБ.'],
                     type: 'success'
                 },
                 'open case81.txt': {
-                    response: [
-                        'ДЕЛО №81',
-                        'АДРЕС: Нижний Тагил, ул. Сибирская, 81',
-                        'СОБЫТИЕ: Взрыв газовоздушной смеси',
-                        'ДАТА: 01.08.2024',
-                        'ПОГИБШИЕ: 11 человек',
-                        'ПОДОЗРЕВАЕМЫЕ: неизвестные в форме газовой службы'
-                    ],
+                    response: ['ДЕЛО №81. Сибирская 81, Нижний Тагил.', 'Взрыв 01.08.2024. 11 погибших.'],
                     type: 'success'
                 },
                 'open vitaly.txt': {
-                    response: [
-                        'ФАЙЛ: vitaly.txt',
-                        'ИМЯ: Виталий Андреевич Шнайдер',
-                        'СТАТУС: ВЫЖИЛ',
-                        'ДИАГНОЗ: ПТСР',
-                        'ПСИХБОЛЬНИЦА: ГАУЗ СО «ПБ №7»',
-                        'ВЫПИСАН: 02.07.2026'
-                    ],
+                    response: ['Виталий Шнайдер. ВЫЖИЛ. ПТСР.', 'Психбольница №7. Выписан 02.07.2026.'],
                     type: 'success'
                 },
                 'open gvr.txt': {
-                    response: [
-                        'GVR - специализированная команда',
-                        'ОСНОВАТЕЛЬ: Виталий Шнайдер',
-                        'ДЕЯТЕЛЬНОСТЬ: спонсирование, информация, рейды',
-                        'СТАТУС: АКТИВНА'
-                    ],
+                    response: ['GVR. Основатель: Виталий Шнайдер.', 'Спонсирование, информация, рейды.'],
                     type: 'success'
                 },
                 'open shaman.txt': {
-                    response: [
-                        'ДОСТУП ЗАПРЕЩЁН.',
-                        'НУЖЕН ДРУГОЙ УРОВЕНЬ ДОСТУПА.'
-                    ],
+                    response: ['ДОСТУП ЗАПРЕЩЁН.'],
                     type: 'error'
                 },
                 'open kapysta.txt': {
-                    response: [
-                        'КАПУСТА — ЭТО НЕ ОВОЩ.',
-                        'КАПУСТА — ЭТО СОСТОЯНИЕ ДУШИ.'
-                    ],
+                    response: ['КАПУСТА — ЭТО НЕ ОВОЩ.', 'КАПУСТА — ЭТО СОСТОЯНИЕ ДУШИ.'],
                     type: 'secret'
                 },
                 'open truth.txt': {
-                    response: [
-                        'ФАЙЛ ЗАШИФРОВАН.',
-                        'НУЖЕН ДОПОЛНИТЕЛЬНЫЙ ПАРОЛЬ.',
-                        'ПОДСКАЗКА: дата, когда всё началось.'
-                    ],
+                    response: ['ФАЙЛ ЗАШИФРОВАН.', 'НУЖЕН ДОПОЛНИТЕЛЬНЫЙ ПАРОЛЬ.'],
                     type: 'error'
                 },
                 'open morse.txt': {
-                    response: [
-                        'МОРЗЕ-СИГНАЛ:',
-                        '... --- ...',
-                        'ПЕРЕВОД: SOS',
-                        '-...- . ...--',
-                        'ПЕРЕВОД: VZ'
-                    ],
+                    response: ['... --- ... / -...- . ...--', 'SOS VZ'],
                     type: 'success'
                 },
                 status: {
-                    response: [
-                        'СИСТЕМА: АКТИВНА',
-                        'ПОДКЛЮЧЕНИЕ: СТАБИЛЬНОЕ',
-                        'ПОЛЬЗОВАТЕЛЬ: ' + (sessionStorage.getItem('vz_login') || 'НЕИЗВЕСТНЫЙ'),
-                        'УРОВЕНЬ ДОСТУПА: ' + (sessionStorage.getItem('vz_access_level') || 'НЕОПРЕДЕЛЁН')
-                    ],
+                    response: ['СИСТЕМА: АКТИВНА', 'ПОЛЬЗОВАТЕЛЬ: ' + (sessionStorage.getItem('vz_login') || 'НЕИЗВЕСТНЫЙ'), 'УРОВЕНЬ: ' + (sessionStorage.getItem('vz_access_level') || 'НЕОПРЕДЕЛЁН')],
                     type: 'system'
                 },
                 clear: {
                     clear: true
                 },
                 exit: {
-                    response: [
-                        'ВЫХОД НЕВОЗМОЖЕН.',
-                        'ВЫ УЖЕ ЗДЕСЬ.'
-                    ],
+                    response: ['ВЫХОД НЕВОЗМОЖЕН. ВЫ УЖЕ ЗДЕСЬ.'],
                     type: 'error'
                 },
                 vz: {
-                    response: [
-                        'Возмездие Аида и Кости.',
-                        'Создано: 18.06.2024.',
-                        'Основатели: Дмитрий (Аид) и Константин (Костя).',
-                        'Статус: активен.'
-                    ],
+                    response: ['Возмездие Аида и Кости.', 'Создано: 18.06.2024.', 'Статус: активен.'],
                     type: 'system'
                 },
                 gvr: {
-                    response: [
-                        'Global Victory Resistance.',
-                        'Основатель: Виталий Шнайдер.',
-                        'Роль в VZ: спонсор.'
-                    ],
+                    response: ['Global Victory Resistance.', 'Основатель: Виталий Шнайдер.'],
                     type: 'system'
                 },
                 aidos: {
-                    response: [
-                        'Аид (Дмитрий).',
-                        '25.05.1999 - 01.08.2024.',
-                        'Погиб при взрыве дома №81.',
-                        'Или нет?'
-                    ],
+                    response: ['Аид. 25.05.1999 - 01.08.2024.', 'Погиб при взрыве.', 'Или нет?'],
                     type: 'success'
                 },
                 kostya: {
-                    response: [
-                        'Костя (Константин).',
-                        '04.12.2002 - 01.08.2024.',
-                        'Погиб при взрыве дома №81.',
-                        'Или нет?'
-                    ],
+                    response: ['Костя. 04.12.2002 - 01.08.2024.', 'Погиб при взрыве.', 'Или нет?'],
                     type: 'success'
                 },
                 vitaly: {
-                    response: [
-                        'Виталий Шнайдер.',
-                        'Выжил.',
-                        'ПТСР.',
-                        'Он знает больше, чем говорит.'
-                    ],
+                    response: ['Виталий. Выжил. ПТСР.', 'Он знает больше, чем говорит.'],
                     type: 'success'
                 },
                 '81': {
-                    response: [
-                        'ДЕЛО №81.',
-                        'Сибирская 81.',
-                        'Взрыв 01.08.2024.',
-                        '11 погибших.',
-                        '6 детей.'
-                    ],
+                    response: ['ДЕЛО №81. 11 погибших. 6 детей.'],
                     type: 'system'
                 },
                 sibirskaya: {
-                    response: [
-                        'ул. Сибирская, 81.',
-                        'Нижний Тагил.',
-                        'Там всё произошло.'
-                    ],
+                    response: ['ул. Сибирская, 81. Нижний Тагил.', 'Там всё произошло.'],
                     type: 'system'
                 },
                 morse: {
-                    response: [
-                        '... --- ...  -...- . ...--',
-                        'SOS VZ'
-                    ],
+                    response: ['... --- ...  -...- . ...--', 'SOS VZ'],
                     type: 'success'
                 },
                 date: {
-                    response: [
-                        'ТЕКУЩАЯ ДАТА: ' + new Date().toLocaleString('ru-RU')
-                    ],
+                    response: ['ТЕКУЩАЯ ДАТА: ' + new Date().toLocaleString('ru-RU')],
                     type: 'system'
                 },
                 whoami: {
-                    response: [
-                        'ТЫ — ТОТ, КТО ДОЛЖЕН БЫЛ ЭТО НАЙТИ.'
-                    ],
+                    response: ['ТЫ — ТОТ, КТО ДОЛЖЕН БЫЛ ЭТО НАЙТИ.'],
                     type: 'success'
                 },
                 truth: {
-                    response: [
-                        'ПРАВДА:',
-                        'АИД И КОСТЯ МЕРТВЫ.',
-                        'НО КАНАЛ ПРОДОЛЖАЕТ РАБОТАТЬ.',
-                        'КТО-ТО ВЕДЁТ ЕГО.',
-                        'КТО-ТО ЗНАЕТ.',
-                        'КТО-ТО МОЛЧИТ.'
-                    ],
+                    response: ['АИД И КОСТЯ МЕРТВЫ.', 'НО КАНАЛ ПРОДОЛЖАЕТ РАБОТАТЬ.', 'КТО-ТО ВЕДЁТ ЕГО.', 'КТО-ТО ЗНАЕТ.', 'КТО-ТО МОЛЧИТ.'],
                     type: 'secret'
+                },
+                chat: {
+                    response: [
+                        'ПЕРЕПИСКА (ВОССТАНОВЛЕНО):',
+                        '',
+                        'Аид: «Костя, блять, я же говорил не трогать газ»',
+                        'Костя: «Аид, блять, это ты газ не выключил»',
+                        'Аид: «Ты идиот.»',
+                        'Костя: «Сам такой.»',
+                        '',
+                        'Аид: «Мы реально умрём?»',
+                        'Костя: «Ха. Возможно.»',
+                        'Аид: «Это будет смешно.»',
+                        'Костя: «Или грустно. Зависит от того, кто будет читать.»',
+                        ''
+                    ],
+                    type: 'chat'
                 }
             };
             
-            terminalInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    const input = terminalInput.value.trim().toLowerCase();
-                    terminalInput.value = '';
-                    
-                    const promptLine = document.createElement('div');
-                    promptLine.className = 'terminal-line';
-                    promptLine.textContent = 'user@vz:~$ ' + input;
-                    terminalOutput.appendChild(promptLine);
-                    
-                    if (input === 'clear') {
-                        terminalOutput.innerHTML = '';
-                        scrollToBottom();
-                        return;
-                    }
-                    
-                    const response = commands[input];
-                    if (response && response.response) {
-                        response.response.forEach(function(line) {
-                            const lineEl = document.createElement('div');
-                            lineEl.className = 'terminal-line ' + (response.type || '');
-                            lineEl.textContent = line;
-                            terminalOutput.appendChild(lineEl);
-                        });
-                    } else if (response && response.clear) {
-                        // Уже обработано выше
-                    } else {
-                        const errEl = document.createElement('div');
-                        errEl.className = 'terminal-line error';
-                        errEl.textContent = 'КОМАНДА НЕ НАЙДЕНА. ВВЕДИТЕ help.';
-                        terminalOutput.appendChild(errEl);
-                    }
-                    
+            function executeCommand(input) {
+                input = input.trim().toLowerCase();
+                if (!input) return;
+                
+                const promptLine = document.createElement('div');
+                promptLine.className = 'terminal-line';
+                promptLine.textContent = 'user@vz:~$ ' + input;
+                terminalOutput.appendChild(promptLine);
+                
+                if (input === 'clear') {
+                    terminalOutput.innerHTML = '';
                     scrollToBottom();
+                    return;
                 }
-            });
+                
+                const response = commands[input];
+                if (response && response.response) {
+                    response.response.forEach(function(line) {
+                        const lineEl = document.createElement('div');
+                        if (line.startsWith('Аид:')) {
+                            lineEl.className = 'terminal-line chat-aidos';
+                        } else if (line.startsWith('Костя:')) {
+                            lineEl.className = 'terminal-line chat-kostya';
+                        } else {
+                            lineEl.className = 'terminal-line ' + (response.type || '');
+                        }
+                        lineEl.textContent = line;
+                        terminalOutput.appendChild(lineEl);
+                    });
+                } else if (response && response.clear) {
+                    // Уже обработано
+                } else {
+                    const errEl = document.createElement('div');
+                    errEl.className = 'terminal-line error';
+                    errEl.textContent = 'КОМАНДА НЕ НАЙДЕНА.';
+                    terminalOutput.appendChild(errEl);
+                }
+                
+                scrollToBottom();
+            }
             
             function scrollToBottom() {
                 terminalOutput.scrollTop = terminalOutput.scrollHeight;
             }
             
-            terminalInput.focus();
+            terminalInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    executeCommand(terminalInput.value);
+                    terminalInput.value = '';
+                }
+            });
+            
+            commandList.addEventListener('click', function(e) {
+                const item = e.target.closest('.command-item');
+                if (item) {
+                    const cmd = item.dataset.cmd;
+                    terminalInput.value = cmd;
+                    executeCommand(cmd);
+                    terminalInput.value = '';
+                    terminalInput.focus();
+                }
+            });
+            
             terminalOutput.addEventListener('click', function() {
                 terminalInput.focus();
             });
+            
+            terminalInput.focus();
         })();
     </script>
     
