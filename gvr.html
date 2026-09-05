@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GVR // ВИТАЛИЙ ШНАЙДЕР</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --bg: #030508;
+            --bg-dark: #060a10;
+            --bg-darker: #020304;
+            --text: #c0d0e0;
+            --text-dim: #6080a0;
+            --text-faint: #304050;
+            --accent: #104060;
+            --accent-bright: #2080c0;
+            --border: #0a1520;
+            --font-main: 'IBM Plex Mono', 'Courier New', monospace;
+            --font-term: 'VT323', 'Courier New', monospace;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            cursor: crosshair;
+            user-select: none;
+        }
+        
+        .med-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: 
+                linear-gradient(90deg, rgba(16,64,96,0.03) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(16,64,96,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .top-text {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
+        
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 0.7rem;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: var(--font-main);
+            letter-spacing: 1px;
+        }
+        
+        .logout-btn:hover {
+            color: var(--accent-bright);
+            border-color: var(--accent);
+        }
+        
+        .main-header {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        .main-title {
+            font-family: var(--font-term);
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            letter-spacing: 5px;
+            color: var(--accent-bright);
+            text-transform: uppercase;
+        }
+        
+        .main-sub {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--text-dim);
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+        
+        .med-card {
+            background: rgba(6,10,16,0.9);
+            border: 1px solid var(--border);
+            padding: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .med-card-title {
+            font-family: var(--font-term);
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            color: var(--accent-bright);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        
+        .med-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        
+        .med-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.75rem;
+            vertical-align: top;
+        }
+        
+        .med-table td:first-child {
+            color: var(--text-dim);
+            letter-spacing: 1px;
+            width: 40%;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+        }
+        
+        .med-table td:last-child {
+            color: var(--text);
+        }
+        
+        .med-table .highlight {
+            color: var(--accent-bright);
+            font-weight: 700;
+        }
+        
+        .record-text {
+            font-size: 0.75rem;
+            line-height: 1.8;
+            color: var(--text);
+            margin-bottom: 15px;
+        }
+        
+        .record-text p {
+            margin-bottom: 12px;
+        }
+        
+        .record-text .redacted {
+            background: var(--text-faint);
+            color: transparent;
+            padding: 0 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+        
+        .record-text .redacted:hover {
+            background: transparent;
+            color: var(--accent-bright);
+        }
+        
+        .mystery-box {
+            border: 1px dashed var(--accent);
+            padding: 20px;
+            text-align: center;
+            background: rgba(2,3,4,0.8);
+        }
+        
+        .mystery-text {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+        
+        .prescription {
+            background: rgba(2,3,4,0.9);
+            border-left: 3px solid var(--accent-bright);
+            padding: 15px 20px;
+            margin: 15px 0;
+            font-size: 0.7rem;
+            line-height: 1.8;
+        }
+        
+        .prescription .drug {
+            color: var(--accent-bright);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .med-card {
+                padding: 15px;
+            }
+            
+            .med-table td {
+                padding: 8px 10px;
+                font-size: 0.65rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="med-overlay"></div>
+    
+    <div class="container">
+        <div class="top-bar">
+            <div class="top-text">GVR // КОНФИДЕНЦИАЛЬНО</div>
+            <button class="logout-btn" onclick="window.location.href='index.html'">ВЫХОД</button>
+        </div>
+        
+        <div class="main-header">
+            <div class="main-title">ВИТАЛИЙ ШНАЙДЕР</div>
+            <div class="main-sub">ОСНОВАТЕЛЬ GVR // ВЫЖИВШИЙ</div>
+        </div>
+        
+        <div class="med-card">
+            <div class="med-card-title">ЛИЧНОЕ ДЕЛО</div>
+            <table class="med-table">
+                <tr>
+                    <td>Имя</td>
+                    <td>Шнайдер Виталий Андреевич</td>
+                </tr>
+                <tr>
+                    <td>Дата рождения</td>
+                    <td class="highlight">18.03.</td>
+                </tr>
+                <tr>
+                    <td>Статус</td>
+                    <td>Выжил при взрыве 01.08.2024</td>
+                </tr>
+                <tr>
+                    <td>Диагноз</td>
+                    <td class="highlight">ПТСР (посттравматическое стрессовое расстройство)</td>
+                </tr>
+                <tr>
+                    <td>Учреждение</td>
+                    <td>ГАУЗ СО «Психиатрическая больница №7»<br>ул. Больничная, 1а</td>
+                </tr>
+                <tr>
+                    <td>Период госпитализации</td>
+                    <td>02 года стационарного лечения</td>
+                </tr>
+                <tr>
+                    <td>Выписан</td>
+                    <td class="highlight">02.07.2026</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="med-card">
+            <div class="med-card-title">МЕДИКАМЕНТОЗНАЯ ТЕРАПИЯ</div>
+            
+            <div class="prescription">
+                <span class="drug">ГИДРОКСИЗИН</span> — транквилизирующее средство.<br>
+                Назначение: снижение тревожности, купирование панических атак.
+            </div>
+            
+            <div class="prescription">
+                <span class="drug">КВЕТИАПИН</span> — нейролептик.<br>
+                Назначение: стабилизация психотических проявлений, коррекция восприятия.
+            </div>
+            
+            <div class="prescription">
+                <span class="drug">ЛАМОТРИДЖИН</span> — нормотимик.<br>
+                Назначение: стабилизация эмоционального фона, предотвращение дисфорических эпизодов.
+            </div>
+            
+            <div class="prescription">
+                <span class="drug">НЕИЗВЕСТНЫЙ ПРЕПАРАТ</span> — нормализация сна.<br>
+                <span style="color: var(--text-faint);">Информация о препарате изъята из открытого доступа.</span>
+            </div>
+        </div>
+        
+        <div class="med-card">
+            <div class="med-card-title">НАБЛЮДЕНИЯ</div>
+            
+            <div class="record-text">
+                <p>Пациент поступил 01.08.2024 в состоянии острого шока. Наблюдались симптомы: дезориентация, повторяющиеся фразы, отказ от коммуникации.</p>
+                
+                <p>В течение первого месяца пациент неоднократно упоминал <span class="redacted">ДВУХ ЛЮДЕЙ</span>, которые «должны были прийти». Позже — «они уже пришли».</p>
+                
+                <p>На 3-й месяц госпитализации зафиксированы случаи <span class="redacted">НОЧНЫХ РАЗГОВОРОВ</span>. Содержание не подлежит разглашению.</p>
+                
+                <p>Пациент утверждал, что <span class="redacted">ВИДЕЛ ИХ ПОСЛЕ ВЗРЫВА</span>. Медицинский персонал связывает это с травматическими галлюцинациями.</p>
+            </div>
+        </div>
+        
+        <div class="mystery-box">
+            <div class="mystery-text">
+                ОН ЗНАЕТ БОЛЬШЕ, ЧЕМ ГОВОРИТ.<br>
+                ОН ВИДЕЛ ТО, ЧЕГО НЕ ДОЛЖЕН БЫЛ ВИДЕТЬ.<br>
+                ОН МОЛЧИТ.<br>
+                ПОКА.
+            </div>
+        </div>
+        
+        <div class="med-card">
+            <div class="med-card-title">GVR — ДЕЯТЕЛЬНОСТЬ</div>
+            <div class="record-text">
+                <p><strong style="color: var(--accent-bright);">GVR</strong> — специализированная команда. Задача: помощь другим проектам посредством спонсирования или поиска нужной информации.</p>
+                <p>Основатель: Виталий Шнайдер.</p>
+                <p>Администраторы GVR «помогут разобраться с проблемой, а также с обидчиком».</p>
+                <p style="color: var(--text-faint);">Прайс: not yet available.</p>
+                <p style="color: var(--text-faint);">GVR может отказать, если задача окажется «не такой критической, как вам кажется».</p>
+            </div>
+        </div>
+        
+        <div class="mystery-box">
+            <div class="mystery-text">
+                АИД И КОСТЯ ПРИЕХАЛИ 30.07.2024.<br>
+                ЦЕЛЬ: ПЕРЕГОВОРЫ О СПОНСИРОВАНИИ.<br>
+                01.08.2024 ДОМ ВЗОРВАЛСЯ.<br>
+                ВИТАЛИЙ ВЫЖИЛ.<br>
+                ВОПРОС: ПОЧЕМУ?
+            </div>
+        </div>
+    </div>
+    
+    <script src="audio.js"></script>
+</body>
+</html>
