@@ -97,11 +97,12 @@
             background: transparent;
             border: 1px solid var(--border);
             color: var(--text-dim);
-            font-size: 1rem;
+            font-size: 0.7rem;
             padding: 8px 15px;
             cursor: pointer;
             transition: all 0.3s;
             font-family: var(--font-main);
+            letter-spacing: 1px;
         }
         
         .logout-btn:hover {
@@ -115,6 +116,8 @@
             flex-direction: column;
             gap: 10px;
             padding: 20px 0;
+            cursor: pointer;
+            position: relative;
         }
         
         .archive-title {
@@ -123,6 +126,12 @@
             letter-spacing: 5px;
             color: var(--text);
             animation: flicker 3s infinite;
+            transition: all 0.3s;
+        }
+        
+        .archive-title:hover {
+            color: var(--accent-bright);
+            text-shadow: 0 0 20px var(--accent);
         }
         
         @keyframes flicker {
@@ -138,6 +147,7 @@
             letter-spacing: 2px;
             color: var(--text-dim);
             text-transform: uppercase;
+            transition: all 0.3s;
         }
         
         .timer-box {
@@ -145,6 +155,13 @@
             border: 1px solid var(--border);
             padding: 20px;
             text-align: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .timer-box:hover {
+            border-color: var(--accent);
         }
         
         .timer-label {
@@ -160,6 +177,7 @@
             font-size: clamp(1.5rem, 5vw, 2.2rem);
             color: var(--accent-bright);
             letter-spacing: 3px;
+            transition: all 0.3s;
         }
         
         .nav-grid {
@@ -180,12 +198,18 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            position: relative;
+            overflow: hidden;
         }
         
         .nav-card:hover {
             border-color: var(--accent);
             background: rgba(139,0,0,0.1);
             transform: translateY(-2px);
+        }
+        
+        .nav-card:active {
+            transform: scale(0.95);
         }
         
         .nav-label {
@@ -225,12 +249,24 @@
             letter-spacing: 3px;
             margin-bottom: 20px;
             color: var(--accent-bright);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .content-title:hover {
+            text-shadow: 0 0 15px var(--accent);
         }
         
         .file-card {
             background: rgba(5,5,5,0.8);
             border: 1px solid var(--border);
             margin-bottom: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .file-card:hover {
+            border-color: var(--accent);
         }
         
         .file-header {
@@ -267,6 +303,12 @@
             padding: 10px;
             border-left: 2px solid var(--accent);
             background: rgba(5,5,5,0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .timeline-item:hover {
+            background: rgba(139,0,0,0.1);
         }
         
         .timeline-date {
@@ -281,23 +323,44 @@
             color: var(--text);
         }
         
+        .secret-popup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(5,5,5,0.95);
+            border: 1px solid var(--accent);
+            padding: 15px 20px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: var(--accent-bright);
+            z-index: 100;
+            display: none;
+            animation: popupIn 0.3s;
+        }
+        
+        @keyframes popupIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .glitch-flash {
+            animation: glitchFlash 0.3s;
+        }
+        
+        @keyframes glitchFlash {
+            0%, 100% { filter: none; }
+            25% { filter: invert(100%); }
+            50% { filter: hue-rotate(90deg); }
+            75% { filter: invert(100%) hue-rotate(180deg); }
+        }
+        
         @media (max-width: 768px) {
             .nav-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
             }
-            
-            .nav-card {
-                padding: 15px;
-            }
-            
-            .container {
-                padding: 10px;
-            }
-            
-            .content-area {
-                padding: 20px;
-            }
+            .container { padding: 10px; }
+            .content-area { padding: 20px; }
         }
         
         @media (max-width: 400px) {
@@ -307,7 +370,7 @@
         }
     </style>
 </head>
-<body class="main-body">
+<body class="archive-body">
     <div class="bg-noise"></div>
     
     <div class="container">
@@ -320,12 +383,12 @@
             <button class="logout-btn" id="logoutBtn">ВЫХОД</button>
         </div>
         
-        <div class="archive-header">
+        <div class="archive-header" id="secretHeader">
             <div class="archive-title">АРХИВ ДЕЛА №81</div>
             <div class="archive-sub">СИБИРСКАЯ 81, НИЖНИЙ ТАГИЛ // 01.08.2024</div>
         </div>
         
-        <div class="timer-box">
+        <div class="timer-box" id="timerBox">
             <div class="timer-label">С МОМЕНТА ВЗРЫВА ПРОШЛО:</div>
             <div class="timer-display" id="timerDisplay">--:--:--:--</div>
         </div>
@@ -360,6 +423,190 @@
         <div class="content-area" id="contentArea"></div>
     </div>
     
+    <div class="secret-popup" id="secretPopup"></div>
+    
     <script src="script.js"></script>
+    <script src="audio.js"></script>
+    
+    <script>
+        (function() {
+            // Таймер
+            const timerDisplay = document.getElementById('timerDisplay');
+            const explosionDate = new Date('2024-08-01T12:00:00');
+            
+            function updateTimer() {
+                const now = new Date();
+                const diff = now - explosionDate;
+                
+                if (diff < 0) {
+                    timerDisplay.textContent = '00:00:00:00';
+                    return;
+                }
+                
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                timerDisplay.textContent = 
+                    String(days).padStart(2, '0') + ':' +
+                    String(hours).padStart(2, '0') + ':' +
+                    String(minutes).padStart(2, '0') + ':' +
+                    String(seconds).padStart(2, '0');
+            }
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+            
+            // Выход
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            });
+            
+            // Навигация
+            document.querySelectorAll('.nav-card').forEach(function(card) {
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    loadContent(this.dataset.page);
+                });
+            });
+            
+            // СКРЫТАЯ КНОПКА 1: Клик по заголовку
+            let headerClickCount = 0;
+            document.getElementById('secretHeader').addEventListener('click', function() {
+                headerClickCount++;
+                
+                if (headerClickCount === 3) {
+                    showSecretPopup('ТЫ НАШЁЛ СЕКРЕТ. НО ЭТО ЕЩЁ НЕ ВСЁ.');
+                    document.body.classList.add('glitch-flash');
+                    setTimeout(() => document.body.classList.remove('glitch-flash'), 300);
+                    headerClickCount = 0;
+                } else if (headerClickCount === 5) {
+                    showSecretPopup('01.08.2024 — ОНИ УМЕРЛИ. НО КТО ВЕДЁТ КАНАЛ?');
+                    document.body.classList.add('glitch-flash');
+                    setTimeout(() => document.body.classList.remove('glitch-flash'), 300);
+                    headerClickCount = 0;
+                }
+            });
+            
+            // СКРЫТАЯ КНОПКА 2: Двойной клик по таймеру
+            let timerClickCount = 0;
+            document.getElementById('timerBox').addEventListener('dblclick', function() {
+                timerClickCount++;
+                if (timerClickCount === 1) {
+                    showSecretPopup('ВРЕМЯ ИДЁТ. НО ДЛЯ НИХ ОНО ОСТАНОВИЛОСЬ.');
+                } else if (timerClickCount === 2) {
+                    showSecretPopup('25.05.1999 / 04.12.2002 / 01.08.2024');
+                    timerClickCount = 0;
+                }
+            });
+            
+            // СКРЫТАЯ КНОПКА 3: Наведение на DOSSERS 5 раз
+            let dossiersHover = 0;
+            document.querySelector('[data-page="dossiers"]').addEventListener('mouseenter', function() {
+                dossiersHover++;
+                if (dossiersHover === 5) {
+                    showSecretPopup('АИД: «Костя, блять...» / КОСТЯ: «Аид, блять...»');
+                    dossiersHover = 0;
+                }
+            });
+            
+            function showSecretPopup(text) {
+                const popup = document.getElementById('secretPopup');
+                popup.textContent = text;
+                popup.style.display = 'block';
+                clearTimeout(popup._timeout);
+                popup._timeout = setTimeout(() => {
+                    popup.style.display = 'none';
+                }, 4000);
+            }
+            
+            function loadContent(page) {
+                const contentArea = document.getElementById('contentArea');
+                
+                let content = '';
+                
+                if (page === 'dossiers') {
+                    content = `
+                        <div class="content-title" id="dossiersTitle">ДОСЬЕ</div>
+                        <div class="file-card" id="aidosFile">
+                            <div class="file-header">ФАЙЛ: AIDOS_DMITRIY.doc</div>
+                            <div class="file-body">
+                                <p><strong>ИМЯ:</strong> Дмитрий (Аид)</p>
+                                <p><strong>ДАТА РОЖДЕНИЯ:</strong> 25.05.1999</p>
+                                <p><strong>СТАТУС:</strong> ПОГИБ ПРИ ВЗРЫВЕ 01.08.2024</p>
+                                <p><strong>РОЛЬ:</strong> СОЗДАТЕЛЬ VZ</p>
+                                <p><strong>ПОСЛЕДНЕЕ СООБЩЕНИЕ:</strong> «Костя, блять, я же говорил не трогать газ»</p>
+                            </div>
+                        </div>
+                        <div class="file-card" id="kostyaFile">
+                            <div class="file-header">ФАЙЛ: KOSTYA_KONSTANTIN.doc</div>
+                            <div class="file-body">
+                                <p><strong>ИМЯ:</strong> Константин (Костя)</p>
+                                <p><strong>ДАТА РОЖДЕНИЯ:</strong> 04.12.2002</p>
+                                <p><strong>СТАТУС:</strong> ПОГИБ ПРИ ВЗРЫВЕ 01.08.2024</p>
+                                <p><strong>РОЛЬ:</strong> СОУЧРЕДИТЕЛЬ VZ</p>
+                                <p><strong>ПОСЛЕДНЕЕ СООБЩЕНИЕ:</strong> «Аид, блять, это ты газ не выключил»</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (page === 'chronology') {
+                    content = `
+                        <div class="content-title" id="chronoTitle">ХРОНОЛОГИЯ</div>
+                        <div class="timeline">
+                            <div class="timeline-item" data-date="18.06.2024">
+                                <div class="timeline-date">18.06.2024</div>
+                                <div class="timeline-text">Создание канала VZ</div>
+                            </div>
+                            <div class="timeline-item" data-date="30.07.2024">
+                                <div class="timeline-date">30.07.2024</div>
+                                <div class="timeline-text">Поездка Аида и Кости в Нижний Тагил</div>
+                            </div>
+                            <div class="timeline-item" data-date="01.08.2024">
+                                <div class="timeline-date">01.08.2024</div>
+                                <div class="timeline-text">Взрыв дома №81</div>
+                            </div>
+                        </div>
+                    `;
+                } else if (page === 'terminal') {
+                    window.location.href = 'terminal.html';
+                    return;
+                } else {
+                    content = '<p>РАЗДЕЛ НЕ НАЙДЕН</p>';
+                }
+                
+                contentArea.innerHTML = content;
+                contentArea.classList.add('active');
+                
+                // Скрытые кнопки в контенте
+                if (page === 'dossiers') {
+                    // Клик по дате рождения Аида
+                    document.querySelector('#aidosFile p:nth-child(2)').addEventListener('click', function() {
+                        showSecretPopup('25.05.1999 — ДЕНЬ, КОГДА ВСЁ НАЧАЛОСЬ');
+                    });
+                    
+                    // Клик по дате рождения Кости
+                    document.querySelector('#kostyaFile p:nth-child(2)').addEventListener('click', function() {
+                        showSecretPopup('04.12.2002 — ОН БЫЛ МЛАДШЕ. НО НЕ ГЛУПЕЕ.');
+                    });
+                    
+                    // Двойной клик по заголовку ДОСЬЕ
+                    document.getElementById('dossiersTitle').addEventListener('dblclick', function() {
+                        showSecretPopup('ОНИ ЗНАЛИ ДРУГ ДРУГА ДО VZ.');
+                    });
+                }
+                
+                if (page === 'chronology') {
+                    document.querySelectorAll('.timeline-item').forEach(function(item) {
+                        item.addEventListener('click', function() {
+                            const date = this.dataset.date;
+                            showSecretPopup('ДАТА: ' + date + ' // ЧТО-ТО СКРЫТО');
+                        });
+                    });
+                }
+            }
+        })();
+    </script>
 </body>
 </html>
