@@ -101,6 +101,7 @@
         .main-header {
             text-align: center;
             padding: 30px 0 10px;
+            cursor: pointer;
         }
         
         .main-title {
@@ -109,6 +110,12 @@
             letter-spacing: 5px;
             color: var(--text);
             text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        
+        .main-title:hover {
+            color: var(--accent-bright);
+            text-shadow: 0 0 20px rgba(64,128,64,0.4);
         }
         
         .main-sub {
@@ -125,6 +132,12 @@
             padding: 15px;
             text-align: center;
             margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .warning-banner:hover {
+            border-color: var(--accent-bright);
         }
         
         .warning-text {
@@ -140,6 +153,12 @@
             margin-bottom: 15px;
             position: relative;
             overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .file-card:hover {
+            border-color: var(--accent);
         }
         
         .file-card::before {
@@ -170,6 +189,7 @@
             font-size: 0.55rem;
             color: var(--accent-bright);
             letter-spacing: 1px;
+            transition: all 0.3s;
         }
         
         .file-status.deleted {
@@ -190,6 +210,11 @@
         
         .file-body p {
             margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+        
+        .file-body p:hover {
+            color: var(--accent-bright);
         }
         
         .file-body .fragment {
@@ -200,12 +225,13 @@
         .file-body .highlight {
             color: var(--accent-bright);
             font-weight: 700;
+            cursor: pointer;
         }
         
         .file-body .hidden-text {
             color: var(--text-faint);
             transition: color 0.3s;
-            cursor: default;
+            cursor: pointer;
         }
         
         .file-body .hidden-text:hover {
@@ -219,10 +245,21 @@
             font-size: 0.7rem;
             line-height: 1.7;
             margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .chat-log:hover {
+            border-color: var(--accent);
         }
         
         .chat-msg {
             margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+        
+        .chat-msg:hover {
+            color: var(--accent-bright);
         }
         
         .chat-msg .name {
@@ -249,19 +286,44 @@
             51%, 100% { opacity: 0; }
         }
         
+        .secret-popup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(2,4,2,0.95);
+            border: 1px solid var(--accent);
+            padding: 15px 20px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: var(--accent-bright);
+            z-index: 100;
+            display: none;
+            animation: popupIn 0.3s;
+        }
+        
+        @keyframes popupIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .glitch-flash {
+            animation: glitchFlash 0.3s;
+        }
+        
+        @keyframes glitchFlash {
+            0%, 100% { filter: none; }
+            25% { filter: invert(100%); }
+            50% { filter: hue-rotate(90deg); }
+            75% { filter: invert(100%) hue-rotate(90deg); }
+        }
+        
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .file-body {
-                padding: 15px;
-                font-size: 0.7rem;
-            }
+            .container { padding: 10px; }
+            .file-body { padding: 15px; font-size: 0.7rem; }
         }
     </style>
 </head>
-<body>
+<body class="andrey-body">
     <div class="glitch-bg"></div>
     
     <div class="container">
@@ -270,16 +332,16 @@
             <button class="logout-btn" onclick="window.location.href='index.html'">ВЫХОД</button>
         </div>
         
-        <div class="warning-banner">
+        <div class="warning-banner" id="warningBanner">
             <div class="warning-text">⚠ ФАЙЛЫ ПОВРЕЖДЕНЫ. ВОССТАНОВЛЕНИЕ НЕПОЛНОЕ. ⚠</div>
         </div>
         
-        <div class="main-header">
+        <div class="main-header" id="mainHeader">
             <div class="main-title">ПЕРВЫЙ</div>
             <div class="main-sub">ТОТ, КТО БЫЛ ДО</div>
         </div>
         
-        <div class="file-card">
+        <div class="file-card" id="file001">
             <div class="file-header">
                 <span>file_001.txt</span>
                 <span class="file-status deleted">[УДАЛЁН]</span>
@@ -291,62 +353,148 @@
             </div>
         </div>
         
-        <div class="file-card">
+        <div class="file-card" id="file002">
             <div class="file-header">
                 <span>file_002.txt</span>
                 <span class="file-status recovered">[ВОССТАНОВЛЕН]</span>
             </div>
             <div class="file-body">
-                <p>18.06.2024 — создание VZ.</p>
-                <p>Первые записи принадлежат не Аиду и не Косте.</p>
-                <p class="hidden-text">Андрей. 07.10.2003. Первый администратор.</p>
-                <p>Позже Аид и Костя заняли оба места.</p>
-                <p class="hidden-text">Он остался в тени. Но тень — это тоже присутствие.</p>
+                <p id="f2p1">18.06.2024 — создание VZ.</p>
+                <p id="f2p2">Первые записи принадлежат не Аиду и не Косте.</p>
+                <p class="hidden-text" id="hidden1">Андрей. 07.10.2003. Первый администратор.</p>
+                <p id="f2p4">Позже Аид и Костя заняли оба места.</p>
+                <p class="hidden-text" id="hidden2">Он остался в тени. Но тень — это тоже присутствие.</p>
             </div>
         </div>
         
-        <div class="file-card">
+        <div class="file-card" id="file003">
             <div class="file-header">
                 <span>chat_fragment.log</span>
                 <span class="file-status recovered">[ЧАСТИЧНО]</span>
             </div>
             <div class="file-body">
-                <div class="chat-log">
-                    <div class="chat-msg"><span class="time">[30.07.2024 23:47]</span> <span class="name">???:</span> они уехали</div>
-                    <div class="chat-msg"><span class="time">[30.07.2024 23:48]</span> <span class="name">???:</span> насовсем?</div>
-                    <div class="chat-msg"><span class="time">[30.07.2024 23:49]</span> <span class="name">???:</span> не знаю</div>
-                    <div class="chat-msg"><span class="time">[30.07.2024 23:50]</span> <span class="name">???:</span> но если что — <span class="highlight">я на месте</span></div>
+                <div class="chat-log" id="chatLog">
+                    <div class="chat-msg" data-msg="1"><span class="time">[30.07.2024 23:47]</span> <span class="name">???:</span> они уехали</div>
+                    <div class="chat-msg" data-msg="2"><span class="time">[30.07.2024 23:48]</span> <span class="name">???:</span> насовсем?</div>
+                    <div class="chat-msg" data-msg="3"><span class="time">[30.07.2024 23:49]</span> <span class="name">???:</span> не знаю</div>
+                    <div class="chat-msg" data-msg="4"><span class="time">[30.07.2024 23:50]</span> <span class="name">???:</span> но если что — <span class="highlight">я на месте</span></div>
                 </div>
                 <p class="fragment" style="margin-top: 10px;">Сообщения отправлены за день до взрыва.</p>
             </div>
         </div>
         
-        <div class="file-card">
+        <div class="file-card" id="file004">
             <div class="file-header">
                 <span>note_003.txt</span>
                 <span class="file-status">[ШИФР]</span>
             </div>
             <div class="file-body">
-                <p>Кто ведёт канал сейчас?</p>
-                <p class="fragment">Если не Аид. Если не Костя.</p>
-                <p>То <span class="hidden-text">кто</span>?</p>
+                <p id="n3p1">Кто ведёт канал сейчас?</p>
+                <p class="fragment" id="n3p2">Если не Аид. Если не Костя.</p>
+                <p id="n3p3">То <span class="hidden-text" id="hidden3">кто</span>?</p>
                 <p style="margin-top: 10px;"><span class="cursor-effect"></span></p>
             </div>
         </div>
         
-        <div class="file-card">
+        <div class="file-card" id="file005">
             <div class="file-header">
                 <span>final_message.txt</span>
                 <span class="file-status recovered">[ВОССТАНОВЛЕН]</span>
             </div>
             <div class="file-body">
-                <p class="highlight">ПЕРВЫЙ ВСЕГДА ВОЗВРАЩАЕТСЯ.</p>
-                <p class="fragment">Возмездие продолжается.</p>
-                <p class="hidden-text">— А. (не тот, о ком вы подумали)</p>
+                <p class="highlight" id="final1">ПЕРВЫЙ ВСЕГДА ВОЗВРАЩАЕТСЯ.</p>
+                <p class="fragment" id="final2">Возмездие продолжается.</p>
+                <p class="hidden-text" id="final3">— А. (не тот, о ком вы подумали)</p>
             </div>
         </div>
     </div>
     
+    <div class="secret-popup" id="secretPopup"></div>
+    
     <script src="audio.js"></script>
+    
+    <script>
+        (function() {
+            const popup = document.getElementById('secretPopup');
+            
+            function showSecretPopup(text) {
+                popup.textContent = text;
+                popup.style.display = 'block';
+                clearTimeout(popup._timeout);
+                popup._timeout = setTimeout(() => {
+                    popup.style.display = 'none';
+                }, 4000);
+            }
+            
+            function glitchFlash() {
+                document.body.classList.add('glitch-flash');
+                setTimeout(() => document.body.classList.remove('glitch-flash'), 300);
+            }
+            
+            // СКРЫТАЯ КНОПКА 1: Тройной клик по заголовку
+            let headerClicks = 0;
+            document.getElementById('mainHeader').addEventListener('click', function() {
+                headerClicks++;
+                if (headerClicks === 3) {
+                    showSecretPopup('ПЕРВЫЙ. ОН БЫЛ ЗДЕСЬ ДО ВСЕХ.');
+                    glitchFlash();
+                    headerClicks = 0;
+                }
+            });
+            
+            // СКРЫТАЯ КНОПКА 2: Клик по «никогда не уходил»
+            document.querySelector('#file001 .highlight').addEventListener('click', function() {
+                showSecretPopup('ОН НИКОГДА НЕ УХОДИЛ. ОН ЖДАЛ.');
+            });
+            
+            // СКРЫТАЯ КНОПКА 3: Клик по скрытому имени
+            document.getElementById('hidden1').addEventListener('click', function() {
+                showSecretPopup('АНДРЕЙ. 07.10.2003. ПЕРВЫЙ.');
+                glitchFlash();
+            });
+            
+            // СКРЫТАЯ КНОПКА 4: Клик по скрытому тексту про тень
+            document.getElementById('hidden2').addEventListener('click', function() {
+                showSecretPopup('ТЕНЬ — ЭТО ТОЖЕ ПРИСУТСТВИЕ.');
+            });
+            
+            // СКРЫТАЯ КНОПКА 5: Клик по сообщению «я на месте»
+            document.querySelector('[data-msg="4"] .highlight').addEventListener('click', function() {
+                showSecretPopup('ОН НА МЕСТЕ. ОН ВСЕГДА НА МЕСТЕ.');
+                glitchFlash();
+            });
+            
+            // СКРЫТАЯ КНОПКА 6: Клик по «кто»
+            document.getElementById('hidden3').addEventListener('click', function() {
+                showSecretPopup('КТО? ТЫ УЖЕ ЗНАЕШЬ ОТВЕТ.');
+            });
+            
+            // СКРЫТАЯ КНОПКА 7: Двойной клик по warning banner
+            document.getElementById('warningBanner').addEventListener('dblclick', function() {
+                showSecretPopup('ФАЙЛЫ ПОВРЕЖДЕНЫ НЕ СЛУЧАЙНО.');
+            });
+            
+            // СКРЫТАЯ КНОПКА 8: Клик по «ПЕРВЫЙ ВСЕГДА ВОЗВРАЩАЕТСЯ»
+            document.getElementById('final1').addEventListener('click', function() {
+                showSecretPopup('ПЕРВЫЙ ВСЕГДА ВОЗВРАЩАЕТСЯ. ТЫ ПОНЯЛ?');
+                glitchFlash();
+            });
+            
+            // СКРЫТАЯ КНОПКА 9: Клик по «не тот, о ком вы подумали»
+            document.getElementById('final3').addEventListener('click', function() {
+                showSecretPopup('НЕ ТОТ, О КОМ ВЫ ПОДУМАЛИ. ТОГДА КТО?');
+            });
+            
+            // СКРЫТАЯ КНОПКА 10: Наведение на chat log 3 раза
+            let chatHover = 0;
+            document.getElementById('chatLog').addEventListener('mouseenter', function() {
+                chatHover++;
+                if (chatHover === 3) {
+                    showSecretPopup('СООБЩЕНИЯ ОТПРАВЛЕНЫ ЗА ДЕНЬ ДО ВЗРЫВА. ОНИ ЗНАЛИ?');
+                    chatHover = 0;
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
