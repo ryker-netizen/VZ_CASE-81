@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ADMIN // СЕРЬЁЗНО?</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --bg: #080808;
+            --text: #c0c0c0;
+            --text-dim: #707070;
+            --accent: #505050;
+            --border: #1a1a1a;
+            --font-main: 'IBM Plex Mono', 'Courier New', monospace;
+            --font-term: 'VT323', 'Courier New', monospace;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: crosshair;
+            user-select: none;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .face {
+            font-size: 5rem;
+            animation: facepalm 2s infinite;
+        }
+        
+        @keyframes facepalm {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+        
+        .title {
+            font-family: var(--font-term);
+            font-size: 2rem;
+            letter-spacing: 5px;
+            color: var(--text);
+        }
+        
+        .subtitle {
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+        
+        .btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 12px 25px;
+            font-family: var(--font-main);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+        
+        .btn:hover {
+            color: var(--text);
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="face">🤦</div>
+        <div class="title">ТЫ СЕРЬЁЗНО?</div>
+        <div class="subtitle">
+            ЛОГИН: admin<br>
+            ПАРОЛЬ: 12345<br>
+            <br>
+            ЭТО САМЫЙ ТУПОЙ ПАРОЛЬ В ИСТОРИИ.<br>
+            ПОЗДРАВЛЯЮ. ТЫ ИДИОТ.<br>
+            <br>
+            А ТЕПЕРЬ ВВЕДИ НОРМАЛЬНЫЙ ПАРОЛЬ.
+        </div>
+        <button class="btn" onclick="window.location.href='index.html'">ВЕРНУТЬСЯ</button>
+    </div>
+</body>
+</html>
