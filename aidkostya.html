@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>АИД И КОСТЯ // МЫ МЕРТВЫ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --bg: #080000;
+            --bg-dark: #120000;
+            --bg-darker: #030000;
+            --text: #e0c0c0;
+            --text-dim: #a06060;
+            --text-faint: #603030;
+            --accent: #600000;
+            --accent-bright: #c00000;
+            --blood-glow: #ff0000;
+            --border: #1a0505;
+            --font-main: 'IBM Plex Mono', 'Courier New', monospace;
+            --font-term: 'VT323', 'Courier New', monospace;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            cursor: crosshair;
+            user-select: none;
+        }
+        
+        .blood-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: 
+                radial-gradient(circle at 50% 30%, rgba(192,0,0,0.08) 0%, transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(96,0,0,0.05) 0%, transparent 40%);
+            animation: bloodPulse 4s infinite;
+        }
+        
+        @keyframes bloodPulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .top-text {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
+        
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 0.7rem;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: var(--font-main);
+            letter-spacing: 1px;
+        }
+        
+        .logout-btn:hover {
+            color: var(--blood-glow);
+            border-color: var(--accent);
+        }
+        
+        .main-header {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        .main-title {
+            font-family: var(--font-term);
+            font-size: clamp(2rem, 6vw, 2.5rem);
+            letter-spacing: 8px;
+            color: var(--blood-glow);
+            text-transform: uppercase;
+            animation: titleFlicker 2s infinite;
+        }
+        
+        @keyframes titleFlicker {
+            0%, 100% { opacity: 1; }
+            48% { opacity: 1; }
+            50% { opacity: 0.3; }
+            52% { opacity: 1; }
+            54% { opacity: 0.6; }
+            56% { opacity: 1; }
+        }
+        
+        .main-sub {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            color: var(--text-dim);
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+        
+        .cipher-block {
+            background: rgba(18,0,0,0.9);
+            border: 1px solid var(--accent);
+            padding: 25px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .cipher-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--blood-glow), transparent);
+        }
+        
+        .cipher-title {
+            font-family: var(--font-term);
+            font-size: 1rem;
+            letter-spacing: 3px;
+            color: var(--accent-bright);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        
+        .cipher-code {
+            font-size: 0.7rem;
+            line-height: 1.8;
+            color: var(--text);
+            font-family: var(--font-main);
+            letter-spacing: 1px;
+            word-break: break-all;
+        }
+        
+        .cipher-hint {
+            font-size: 0.6rem;
+            color: var(--text-faint);
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        .cipher-decoded {
+            font-size: 0.8rem;
+            color: var(--blood-glow);
+            margin-top: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            display: none;
+        }
+        
+        .decode-btn {
+            background: rgba(3,0,0,0.8);
+            border: 1px solid var(--accent);
+            color: var(--text-dim);
+            padding: 8px 15px;
+            font-family: var(--font-main);
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+        
+        .decode-btn:hover {
+            color: var(--blood-glow);
+            border-color: var(--blood-glow);
+            background: rgba(192,0,0,0.1);
+        }
+        
+        .report-block {
+            background: rgba(18,0,0,0.7);
+            border: 1px solid var(--border);
+            padding: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .report-title {
+            font-family: var(--font-term);
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            color: var(--text);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        
+        .report-text {
+            font-size: 0.75rem;
+            line-height: 1.8;
+            color: var(--text-dim);
+        }
+        
+        .report-text p {
+            margin-bottom: 12px;
+        }
+        
+        .report-text .red {
+            color: var(--blood-glow);
+            font-weight: 700;
+        }
+        
+        .final-message {
+            background: rgba(3,0,0,0.95);
+            border: 2px solid var(--blood-glow);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: borderGlow 2s infinite;
+        }
+        
+        @keyframes borderGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(192,0,0,0.3); }
+            50% { box-shadow: 0 0 30px rgba(192,0,0,0.6); }
+        }
+        
+        .final-title {
+            font-family: var(--font-term);
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            color: var(--blood-glow);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        
+        .final-text {
+            font-size: 0.85rem;
+            line-height: 2;
+            color: var(--text);
+            letter-spacing: 2px;
+        }
+        
+        .final-text .glitch-word {
+            display: inline-block;
+            animation: wordGlitch 3s infinite;
+        }
+        
+        @keyframes wordGlitch {
+            0%, 92%, 100% { transform: translateX(0); opacity: 1; }
+            93% { transform: translateX(-3px); opacity: 0.5; }
+            95% { transform: translateX(3px); opacity: 1; }
+            97% { transform: translateX(-2px); opacity: 0.7; }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .cipher-block,
+            .report-block,
+            .final-message {
+                padding: 15px;
+            }
+            
+            .cipher-code {
+                font-size: 0.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="blood-bg"></div>
+    
+    <div class="container">
+        <div class="top-bar">
+            <div class="top-text">ПРИВАТНЫЙ ДОСТУП // АИД_КОСТЯ</div>
+            <button class="logout-btn" onclick="window.location.href='index.html'">ВЫХОД</button>
+        </div>
+        
+        <div class="main-header">
+            <div class="main-title">МЫ МЕРТВЫ</div>
+            <div class="main-sub">25.05.1999 — 01.08.2024 // 04.12.2002 — 01.08.2024</div>
+        </div>
+        
+        <div class="cipher-block">
+            <div class="cipher-title">ШИФР ЦЕЗАРЯ // СДВИГ 7</div>
+            <div class="cipher-code">Tl tlu fvb. Tl zvtl fvb. Tl iytl fvb. Tl svukl fvb.</div>
+            <div class="cipher-hint">Подсказка: m = t</div>
+            <button class="decode-btn" onclick="decodeCaesar(this)">ДЕКОДИРОВАТЬ</button>
+            <div class="cipher-decoded">МЫ НЕ ЖИВЫ. МЫ ВСЕ МЕРТВЫ. МЫ ЗДЕСЬ НАВСЕГДА. МЫ НЕ УЙДЁМ.</div>
+        </div>
+        
+        <div class="cipher-block">
+            <div class="cipher-title">ДВОИЧНЫЙ КОД</div>
+            <div class="cipher-code">01001101 01011001 00100000 01001101 01000101 01010010 01010100 01010110 01011001</div>
+            <div class="cipher-hint">Подсказка: 8 бит = 1 символ</div>
+            <button class="decode-btn" onclick="decodeBinary(this)">ДЕКОДИРОВАТЬ</button>
+            <div class="cipher-decoded">МЫ МЕРТВЫ</div>
+        </div>
+        
+        <div class="cipher-block">
+            <div class="cipher-title">МОРЗЕ</div>
+            <div class="cipher-code">-- -.-- / -- . .-. - .- -.-- -.-- / -.-- -.-- -.--</div>
+            <div class="cipher-hint">Подсказка: короткий = точка, длинный = тире</div>
+            <button class="decode-btn" onclick="decodeMorse(this)">ДЕКОДИРОВАТЬ</button>
+            <div class="cipher-decoded">МЫ МЕРТВЫ НАВСЕГДА</div>
+        </div>
+        
+        <div class="cipher-block">
+            <div class="cipher-title">HEX // ПСЕВДОНАУКА</div>
+            <div class="cipher-code">0x41 0x48 0x44 0x20 0x48 0x20 0x4b 0x4f 0x43 0x54 0x42 0x20 0x48 0x45 0x20 0x4d 0x45 0x52 0x54 0x42 0xeb</div>
+            <div class="cipher-hint">Подсказка: hex → ascii → кириллица</div>
+            <button class="decode-btn" onclick="decodeHex(this)">ДЕКОДИРОВАТЬ</button>
+            <div class="cipher-decoded">АИД И КОСТЯ НЕ МЕРТВЫ</div>
+        </div>
+        
+        <div class="report-block">
+            <div class="report-title">ОТЧЁТ О НАБЛЮДЕНИИ</div>
+            <div class="report-text">
+                <p>Субъекты А. и К. <span class="red">официально мертвы</span> с 01.08.2024.</p>
+                <p>Тела не были найдены. Останки не были идентифицированы.</p>
+                <p>Взрыв уничтожил всё. Но <span class="red">пустота</span> — это тоже след.</p>
+                <p>Наблюдатели фиксируют аномальную активность в цифровом пространстве VZ.</p>
+                <p>Сообщения продолжают появляться. Посты публикуются. Канал живёт.</p>
+                <p>Вопрос: если они мертвы, <span class="red">кто это делает?</span></p>
+            </div>
+        </div>
+        
+        <div class="final-message">
+            <div class="final-title">ПОСЛЕДНЕЕ СЛОВО</div>
+            <div class="final-text">
+                <span class="glitch-word">МЫ</span> <span class="glitch-word">МЕРТВЫ</span><br>
+                <span class="glitch-word">НО</span> <span class="glitch-word">МЫ</span> <span class="glitch-word">ЗДЕСЬ</span><br>
+                <span class="glitch-word">ВЫ</span> <span class="glitch-word">НАС</span> <span class="glitch-word">ВИДИТЕ</span><br>
+                <span class="glitch-word">ВЫ</span> <span class="glitch-word">НАС</span> <span class="glitch-word">СЛЫШИТЕ</span><br>
+                <span class="glitch-word">ВЫ</span> <span class="glitch-word">НАС</span> <span class="glitch-word">ЧУВСТВУЕТЕ</span><br>
+                <br>
+                <span class="glitch-word">МЫ</span> <span class="glitch-word">НЕ</span> <span class="glitch-word">УЙДЁМ</span>
+            </div>
+        </div>
+    </div>
+    
+    <script src="audio.js"></script>
+    
+    <script>
+        function decodeCaesar(btn) {
+            btn.nextElementSibling.style.display = 'block';
+        }
+        
+        function decodeBinary(btn) {
+            btn.nextElementSibling.style.display = 'block';
+        }
+        
+        function decodeMorse(btn) {
+            btn.nextElementSibling.style.display = 'block';
+        }
+        
+        function decodeHex(btn) {
+            btn.nextElementSibling.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
