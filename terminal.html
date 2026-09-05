@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VZ // TERMINAL</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="terminal-body">
+    <div class="glitch-overlay"></div>
+    <div class="noise-overlay"></div>
+    
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <span class="terminal-title">VZ_TERMINAL v.2.0.26</span>
+            <button class="terminal-close" id="terminalClose">×</button>
+        </div>
+        
+        <div class="terminal-output" id="terminalOutput">
+            <div class="terminal-line system">
+                VZ_TERMINAL v.2.0.26 // СОЕДИНЕНИЕ УСТАНОВЛЕНО
+            </div>
+            <div class="terminal-line system">
+                ВВЕДИТЕ "help" ДЛЯ СПИСКА КОМАНД
+            </div>
+        </div>
+        
+        <div class="terminal-input-line">
+            <span class="terminal-prompt">user@vz:~$</span>
+            <input type="text" id="terminalInput" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        </div>
+    </div>
+    
+    <audio id="audioPlayer" loop></audio>
+    
+    <script src="script.js"></script>
+    <script src="audio.js"></script>
+</body>
+</html>
