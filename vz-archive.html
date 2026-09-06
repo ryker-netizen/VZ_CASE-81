@@ -652,6 +652,23 @@
                     });
                 }
             }
+            function checkRestricted() {
+                const input = document.getElementById('restrictedPassword');
+                const pwd = input.value.trim();
+                
+                if (pwd === '020760') {
+                    window.location.href = 'shaman.html';
+                } else if (pwd === '012812') {
+                    window.location.href = 'aidkostya.html';
+                } else if (pwd === '1813') {
+                    window.location.href = 'gvr.html';
+                } else if (pwd === '18062024') {
+                    window.location.href = 'andrey.html';
+                } else {
+                    input.value = '';
+                    input.placeholder = 'НЕВЕРНЫЙ ПАРОЛЬ. БЛЯТЬ.';
+                }
+            }
         })();
     </script>
 </body>
