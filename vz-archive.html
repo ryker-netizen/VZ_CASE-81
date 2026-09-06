@@ -705,7 +705,7 @@ const attemptReactions = [
     { min: 50, msg: 'ПОЛТИННИК. НЕПЛОХО ДЛЯ ИДИОТА.' }
 ];
 
-function checkRestricted() {
+window.checkRestricted = function() {
     const input = document.getElementById('restrictedPassword');
     const pwd = input.value.trim();
     
