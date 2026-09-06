@@ -1,5 +1,5 @@
-/* ============ VZ ARG // FIX ============ */
-/* Убирает синий цвет при нажатии на всех страницах */
+/* ============ VZ ARG // FIX v2 ============ */
+/* Убирает синий цвет и белые вспышки */
 
 * {
     -webkit-tap-highlight-color: transparent !important;
@@ -15,7 +15,6 @@
 }
 
 *:active {
-    background: transparent !important;
     -webkit-tap-highlight-color: transparent !important;
 }
 
@@ -40,7 +39,6 @@ h3:active,
 h4:active,
 h5:active,
 h6:active {
-    background: transparent !important;
     -webkit-tap-highlight-color: transparent !important;
 }
 
