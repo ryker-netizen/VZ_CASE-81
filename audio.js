@@ -1,4 +1,4 @@
-// ============ VZ ARG // AUDIO SYSTEM v2 ============
+// ============ VZ ARG // AUDIO SYSTEM v3 ============
 // ============ FULL VERSION ============
 
 const AudioSystem = {
@@ -28,7 +28,9 @@ const AudioSystem = {
         this.currentMode = mode;
         this.stopAllLoops();
         
-        if (mode === 'archive') {
+        if (mode === 'login') {
+            this.startLoginAmbient();
+        } else if (mode === 'archive') {
             this.startArchiveAmbient();
         } else if (mode === 'sibirskaya') {
             this.startSibirskayaAmbient();
@@ -44,7 +46,6 @@ const AudioSystem = {
     },
     
     stopAllLoops() {
-        // Очистка интервалов
         if (this.intervals) {
             this.intervals.forEach(clearInterval);
         }
@@ -205,11 +206,43 @@ const AudioSystem = {
         }
     },
     
+    startLoginAmbient() {
+        if (!this.context || !this.masterGain) return;
+        this.intervals = [];
+        
+        const bufferSize = this.context.sampleRate * 4;
+        const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.sin(i * 0.00008) * 0.4 + Math.sin(i * 0.00015) * 0.2 + (Math.random() * 0.05 - 0.025);
+        }
+        const source = this.context.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        const filter = this.context.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 200;
+        const gain = this.context.createGain();
+        gain.gain.value = 0.5;
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+        source.start();
+        
+        this.intervals.push(setInterval(() => {
+            if (Math.random() < 0.25) this.playGlitch(0.05 + Math.random() * 0.1);
+        }, 8000));
+        
+        this.intervals.push(setInterval(() => {
+            this.playMorse('sos');
+            setTimeout(() => this.playMorse('vz'), 2000);
+        }, 50000 + Math.random() * 15000));
+    },
+    
     startArchiveAmbient() {
         if (!this.context || !this.masterGain) return;
         this.intervals = [];
         
-        // Низкий гул
         const bufferSize = this.context.sampleRate * 4;
         const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
         const data = buffer.getChannelData(0);
@@ -229,17 +262,14 @@ const AudioSystem = {
         gain.connect(this.masterGain);
         source.start();
         
-        // Тиканье часов (для таймера)
         this.intervals.push(setInterval(() => {
             this.playTick();
         }, 1000));
         
-        // Редкий глитч
         this.intervals.push(setInterval(() => {
             if (Math.random() < 0.3) this.playGlitch(0.05 + Math.random() * 0.1);
         }, 8000));
         
-        // Редкое морзе
         this.intervals.push(setInterval(() => {
             this.playMorse('sos');
             setTimeout(() => this.playMorse('vz'), 2000);
@@ -250,7 +280,6 @@ const AudioSystem = {
         if (!this.context || !this.masterGain) return;
         this.intervals = [];
         
-        // Ветер
         const bufferSize = this.context.sampleRate * 3;
         const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
         const data = buffer.getChannelData(0);
@@ -273,12 +302,10 @@ const AudioSystem = {
         gain.connect(this.masterGain);
         source.start();
         
-        // Редкий звук сирены
         this.intervals.push(setInterval(() => {
             if (Math.random() < 0.15) this.playSiren();
         }, 30000));
         
-        // Редкий звук огня
         this.intervals.push(setInterval(() => {
             if (Math.random() < 0.2) this.playFire();
         }, 25000));
@@ -288,17 +315,14 @@ const AudioSystem = {
         if (!this.context || !this.masterGain) return;
         this.intervals = [];
         
-        // Сердцебиение
         this.intervals.push(setInterval(() => {
             this.playHeartbeat();
         }, 1200));
         
-        // Редкий монитор
         this.intervals.push(setInterval(() => {
             if (Math.random() < 0.3) this.createTone(this.context.currentTime, 0.5, 800 + Math.random() * 400, 'sine', 0.05);
         }, 8000));
         
-        // Редкий шёпот
         this.intervals.push(setInterval(() => {
             if (Math.random() < 0.2) this.playWhisper();
         }, 15000));
@@ -308,7 +332,6 @@ const AudioSystem = {
         if (!this.context || !this.masterGain) return;
         this.intervals = [];
         
-        // Тихий гул
         const bufferSize = this.context.sampleRate * 3;
         const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
         const data = buffer.getChannelData(0);
@@ -328,12 +351,10 @@ const AudioSystem = {
         gain.connect(this.masterGain);
         source.start();
         
-        // Редкий шёпот
         this.intervals.push(setInterval(() => {
             if (Math.random() < 0.3) this.playWhisper();
         }, 12000));
         
-        // Редкий стук
         this.intervals.push(setInterval(() => {
             if (Math.random() < 0.25) this.createTone(this.context.currentTime, 0.05, 200, 'square', 0.1);
         }, 7000));
@@ -343,18 +364,44 @@ const AudioSystem = {
         if (!this.context || !this.masterGain) return;
         this.intervals = [];
         
-        // Хаотичные смешные звуки
+        const bufferSize = this.context.sampleRate * 3;
+        const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
+        const data = buffer.getChannelData(0);
+        let last = 0;
+        for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            last = (last + 0.015 * white) / 1.015;
+            data[i] = last * 2.5;
+        }
+        const windSource = this.context.createBufferSource();
+        windSource.buffer = buffer;
+        windSource.loop = true;
+        const windFilter = this.context.createBiquadFilter();
+        windFilter.type = 'bandpass';
+        windFilter.frequency.value = 800;
+        windFilter.Q.value = 0.5;
+        const windGain = this.context.createGain();
+        windGain.gain.value = 0.25;
+        windSource.connect(windFilter);
+        windFilter.connect(windGain);
+        windGain.connect(this.masterGain);
+        windSource.start();
+        
+        this.intervals.push(setInterval(() => {
+            const newFreq = 600 + Math.random() * 600;
+            windFilter.frequency.linearRampToValueAtTime(newFreq, this.context.currentTime + 2);
+            windGain.gain.linearRampToValueAtTime(0.15 + Math.random() * 0.2, this.context.currentTime + 2);
+        }, 4000));
+        
         this.intervals.push(setInterval(() => {
             const freq = 300 + Math.random() * 600;
             this.createTone(this.context.currentTime, 0.2, freq, 'square', 0.06);
         }, 3000));
         
-        // Редкий смех
         this.intervals.push(setInterval(() => {
             if (Math.random() < 0.3) this.playLaugh();
         }, 10000));
         
-        // Казу-подобный звук
         this.intervals.push(setInterval(() => {
             if (Math.random() < 0.2) {
                 const osc = this.context.createOscillator();
@@ -374,7 +421,6 @@ const AudioSystem = {
         if (!this.context || !this.masterGain) return;
         this.intervals = [];
         
-        // Кровавый низкий гул
         const bufferSize = this.context.sampleRate * 3;
         const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
         const data = buffer.getChannelData(0);
@@ -394,12 +440,10 @@ const AudioSystem = {
         gain.connect(this.masterGain);
         source.start();
         
-        // Редкое дыхание
         this.intervals.push(setInterval(() => {
             if (Math.random() < 0.3) this.createNoise(1.5, 0.08, 500);
         }, 10000));
         
-        // Редкий шёпот
         this.intervals.push(setInterval(() => {
             if (Math.random() < 0.25) this.playWhisper();
         }, 8000));
@@ -414,7 +458,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let mode = 'default';
     
-    if (bodyClass.includes('archive-body') || bodyClass.includes('main-body')) {
+    if (bodyClass.includes('login-body')) {
+        mode = 'login';
+    } else if (bodyClass.includes('archive-body') || bodyClass.includes('main-body')) {
         mode = 'archive';
     } else if (bodyClass.includes('sibirskaya-body')) {
         mode = 'sibirskaya';
