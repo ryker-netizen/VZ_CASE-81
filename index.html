@@ -299,6 +299,44 @@
             .login-box { padding: 20px; }
             .header-title { letter-spacing: 3px; }
         }
+        
+        .dvd-hint {
+            position: fixed;
+            top: 0;
+            left: 0;
+            font-family: var(--font-term);
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            color: rgba(139, 0, 0, 0.15);
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+            animation: dvdMove 12s linear infinite;
+        }
+        
+        @keyframes dvdMove {
+            0% {
+                top: 0;
+                left: 0;
+            }
+            25% {
+                top: calc(100vh - 40px);
+                left: calc(100vw - 250px);
+            }
+            50% {
+                top: calc(100vh - 40px);
+                left: 0;
+            }
+            75% {
+                top: 0;
+                left: calc(100vw - 250px);
+            }
+            100% {
+                top: 0;
+                left: 0;
+            }
+        }
+        
     </style>
 </head>
 <body class="login-body">
@@ -343,7 +381,10 @@
             <button class="modal-close" id="modalClose">×</button>
         </div>
     </div>
-    
+
+        <div class="dvd-hint" id="dvdHint">VZ // 01.08.2024</div>
+    <script src="script.js"></script>
+    <script src="audio.js"></script>
     <script src="script.js"></script>
     <script src="audio.js"></script>
     
