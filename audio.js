@@ -41,7 +41,9 @@ const AudioSystem = {
         } else if (mode === 'shaman') {
             this.startShamanAmbient();
         } else if (mode === 'aidkostya') {
-            this.startAidKostyaAmbient();
+    this.startAidKostyaAmbient();
+} else if (mode === 'terminal') {
+    this.startTerminalAmbient();
         }
     },
     
@@ -417,7 +419,74 @@ const AudioSystem = {
         }, 6000));
     },
     
-    startAidKostyaAmbient() {
+    startTerminalAmbient() {
+    if (!this.context || !this.masterGain) return;
+    this.intervals = [];
+    
+    // Ветер
+    const windBufferSize = this.context.sampleRate * 4;
+    const windBuffer = this.context.createBuffer(1, windBufferSize, this.context.sampleRate);
+    const windData = windBuffer.getChannelData(0);
+    let windLast = 0;
+    for (let i = 0; i < windBufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        windLast = (windLast + 0.01 * white) / 1.01;
+        windData[i] = windLast * 2;
+    }
+    const windSource = this.context.createBufferSource();
+    windSource.buffer = windBuffer;
+    windSource.loop = true;
+    const windFilter = this.context.createBiquadFilter();
+    windFilter.type = 'lowpass';
+    windFilter.frequency.value = 500;
+    const windGain = this.context.createGain();
+    windGain.gain.value = 0.2;
+    windSource.connect(windFilter);
+    windFilter.connect(windGain);
+    windGain.connect(this.masterGain);
+    windSource.start();
+    
+    // Сверчки (тихие периодические щебетания)
+    this.intervals.push(setInterval(() => {
+        if (Math.random() < 0.4) {
+            const cricketStart = this.context.currentTime;
+            const cricketCount = 3 + Math.floor(Math.random() * 5);
+            for (let i = 0; i < cricketCount; i++) {
+                const start = cricketStart + i * 0.08;
+                this.createTone(start, 0.04, 4000 + Math.random() * 1000, 'sine', 0.04);
+            }
+        }
+    }, 2500));
+    
+    // Перекати-поле (шуршание)
+    this.intervals.push(setInterval(() => {
+        if (Math.random() < 0.2) {
+            this.createNoise(1.5, 0.1, 800);
+        }
+    }, 12000));
+    
+    // Тихий гул
+    const humBufferSize = this.context.sampleRate * 3;
+    const humBuffer = this.context.createBuffer(1, humBufferSize, this.context.sampleRate);
+    const humData = humBuffer.getChannelData(0);
+    for (let i = 0; i < humBufferSize; i++) {
+        humData[i] = Math.sin(i * 0.00003) * 0.3;
+    }
+    const humSource = this.context.createBufferSource();
+    humSource.buffer = humBuffer;
+    humSource.loop = true;
+    const humFilter = this.context.createBiquadFilter();
+    humFilter.type = 'lowpass';
+    humFilter.frequency.value = 100;
+    const humGain = this.context.createGain();
+    humGain.gain.value = 0.4;
+    humSource.connect(humFilter);
+    humFilter.connect(humGain);
+    humGain.connect(this.masterGain);
+    humSource.start();
+},
+
+startAidKostyaAmbient() {
         if (!this.context || !this.masterGain) return;
         this.intervals = [];
         
@@ -470,8 +539,10 @@ document.addEventListener('DOMContentLoaded', function() {
         mode = 'andrey';
     } else if (bodyClass.includes('shaman-body')) {
         mode = 'shaman';
-    } else if (bodyClass.includes('aidkostya-body')) {
-        mode = 'aidkostya';
+} else if (bodyClass.includes('aidkostya-body')) {
+    mode = 'aidkostya';
+} else if (bodyClass.includes('terminal-body')) {
+    mode = 'terminal';
     }
     
     AudioSystem.setMode(mode);
