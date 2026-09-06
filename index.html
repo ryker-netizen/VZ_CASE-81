@@ -346,5 +346,209 @@
     
     <script src="script.js"></script>
     <script src="audio.js"></script>
+    
+    <script>
+        (function() {
+            // Переключение языка
+            const translations = {
+                ru: {
+                    title: 'ВОЗМЕЗДИЕ АИДА И КОСТИ',
+                    sub: 'VZ // CASE FILE 81 // RESTRICTED ACCESS',
+                    loginTitle: 'ВХОД В СИСТЕМУ',
+                    loginLabel: 'ЛОГИН',
+                    passwordLabel: 'ПАРОЛЬ',
+                    loginBtn: 'АВТОРИЗАЦИЯ',
+                    footer: '© 2024-2026 VZ // ВСЕ ПРАВА НЕ ЗАЩИЩЕНЫ',
+                    errorEmpty: 'ВВЕДИТЕ ЛОГИН И ПАРОЛЬ',
+                    errorWrong: 'НЕВЕРНЫЙ ЛОГИН ИЛИ ПАРОЛЬ'
+                },
+                en: {
+                    title: 'REVENGE OF AIDOS AND KOSTYA',
+                    sub: 'VZ // CASE FILE 81 // RESTRICTED ACCESS',
+                    loginTitle: 'SYSTEM ACCESS',
+                    loginLabel: 'LOGIN',
+                    passwordLabel: 'PASSWORD',
+                    loginBtn: 'AUTHORIZE',
+                    footer: '© 2024-2026 VZ // ALL RIGHTS NOT RESERVED',
+                    errorEmpty: 'ENTER LOGIN AND PASSWORD',
+                    errorWrong: 'INVALID LOGIN OR PASSWORD'
+                },
+                fr: {
+                    title: 'VENGEANCE D\'AIDOS ET KOSTYA',
+                    sub: 'VZ // DOSSIER 81 // ACCÈS RESTREINT',
+                    loginTitle: 'ACCÈS SYSTÈME',
+                    loginLabel: 'IDENTIFIANT',
+                    passwordLabel: 'MOT DE PASSE',
+                    loginBtn: 'AUTORISER',
+                    footer: '© 2024-2026 VZ // TOUS DROITS NON RÉSERVÉS',
+                    errorEmpty: 'ENTREZ IDENTIFIANT ET MOT DE PASSE',
+                    errorWrong: 'IDENTIFIANT OU MOT DE PASSE INCORRECT'
+                }
+            };
+            
+            let currentLang = 'ru';
+            
+            // Обработчик переключения языка
+            document.querySelectorAll('.lang-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    currentLang = this.dataset.lang;
+                    
+                    document.querySelectorAll('.lang-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    updateLanguage();
+                });
+            });
+            
+            function updateLanguage() {
+                const t = translations[currentLang];
+                
+                document.querySelector('.header-title').textContent = t.title;
+                document.querySelector('.header-title').setAttribute('data-text', t.title);
+                document.querySelector('.header-sub').textContent = t.sub;
+                document.querySelector('.login-title').textContent = t.loginTitle;
+                document.querySelectorAll('.input-label')[0].textContent = t.loginLabel;
+                document.querySelectorAll('.input-label')[1].textContent = t.passwordLabel;
+                document.querySelector('.login-btn').textContent = t.loginBtn;
+                document.querySelector('.login-footer').textContent = t.footer;
+            }
+            
+            // Счётчик попыток
+            let attempts = parseInt(localStorage.getItem('vz_login_attempts') || '0');
+            
+            // Реакции на конкретные пароли
+            const wrongPasswords = [
+                { pwd: '12345', msg: 'БЛЯТЬ. СЕРЬЁЗНО? 12345?' },
+                { pwd: 'qwerty', msg: 'QWERTY? ТЫ ЧТО, В 2007 ГОДУ?' },
+                { pwd: 'password', msg: 'PASSWORD? ОРИГИНАЛЬНО. НЕТ.' },
+                { pwd: 'admin', msg: 'АДМИН? АХАХАХ.' },
+                { pwd: '123456', msg: '123456? это пиздец' },
+                { pwd: '111111', msg: '111111? СЕРЬЁЗНО?' },
+                { pwd: '000000', msg: '000000? НУ ТЫ И ЕБЛАН.' },
+                { pwd: '67', msg: 'ты тупоголовый придурок нахуй.' },
+                { pwd: '300', msg: 'Трактористом буду я, отсосешь ты у меня.' },
+                { pwd: '52', msg: 'эй йоу' },
+                { pwd: '42', msg: 'Кемеровская область.' },
+                { pwd: '666', msg: 'Устраивает.' },
+                { pwd: 'хуй', msg: 'ХУЙ? СМЕШНО. НО НЕТ.' },
+                { pwd: 'блять', msg: 'БЛЯТЬ? ЭТО твоя мамаша, только не хватает буквы "Д".' },
+                { pwd: 'сука', msg: 'СУКА? НЕТ. НО ДА. НО НЕТ.' },
+                { pwd: 'пизда', msg: 'ПИЗДА? ХАХА. ТВОЯ.' },
+                { pwd: 'sibirskaya', msg: 'СИБИРСКАЯ? ХОРОШАЯ ПОПЫТКА. НО НЕТ.' },
+                { pwd: 'aidkostya', msg: 'АИД И КОСТЯ? ОНИ МЕРТВЫ. И ТЫ ТОЖЕ.' },
+                { pwd: 'shaman', msg: 'ШАМАН? ОН ВИДИТ ТЕБЯ.' },
+                { pwd: 'kapysta', msg: 'КАПУСТА? ЭТО НЕ ОВОЩ.' },
+                { pwd: 'vitaly', msg: 'ВИТАЛИЙ? ОН ЗНАЕТ. НО МОЛЧИТ.' },
+                { pwd: 'andrey', msg: 'АНДРЕЙ? ОН ВСЁ ЕЩЁ ЗДЕСЬ.' },
+                { pwd: 'gvr', msg: 'GVR? НЕ ПЛОХО. НО НЕТ.' },
+                { pwd: '01082024', msg: '01.08.2024? ДАТА ВЗРЫВА. НО НЕ СЮДА.' },
+                { pwd: '25051999', msg: '25.05.1999? ДЕНЬ РОЖДЕНИЯ АИДА. НО НЕТ.' },
+                { pwd: '04122002', msg: '04.12.2002? ДЕНЬ РОЖДЕНИЯ КОСТИ. НО НЕТ.' }
+            ];
+            
+            // Реакции по количеству попыток
+            const attemptReactions = [
+                { min: 0, msg: 'НЕВЕРНЫЙ ЛОГИН ИЛИ ПАРОЛЬ.' },
+                { min: 3, msg: 'НЕВЕРНО. ПОДУМАЙ ЕЩЁ.' },
+                { min: 5, msg: 'ТЫ ИЗДЕВАЕШЬСЯ?' },
+                { min: 8, msg: 'ПРЕКРАТИ. ТЫ НЕ УГАДАЕШЬ.' },
+                { min: 12, msg: 'СЕРЬЁЗНО? ЕЩЁ ПОПЫТКИ?' },
+                { min: 15, msg: 'МОЖЕТ, ПОДСКАЗАТЬ? НЕТ.' },
+                { min: 20, msg: 'ТЕБЕ НЕ СТРАШНО? ОНИ СМОТРЯТ.' },
+                { min: 25, msg: 'АИД СМЕЁТСЯ НАД ТОБОЙ.' },
+                { min: 30, msg: 'КОСТЯ ТОЖЕ СМЕЁТСЯ.' },
+                { min: 40, msg: 'ТЫ ВООБЩЕ УСТАЛ? НЕТ?' },
+                { min: 50, msg: 'ПОЛТИННИК. НЕПЛОХО ДЛЯ ИДИОТА.' }
+            ];
+            
+            // Обработка входа
+            document.getElementById('loginBtn').addEventListener('click', handleLogin);
+            document.getElementById('passwordInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') handleLogin();
+            });
+            
+            function handleLogin() {
+                const login = document.getElementById('loginInput').value.trim();
+                const password = document.getElementById('passwordInput').value.trim();
+                const errorEl = document.getElementById('loginError');
+                const modal = document.getElementById('responseModal');
+                const modalText = document.getElementById('modalText');
+                
+                if (!login || !password) {
+                    errorEl.textContent = translations[currentLang].errorEmpty;
+                    errorEl.style.display = 'block';
+                    setTimeout(function() { errorEl.style.display = 'none'; }, 3000);
+                    return;
+                }
+                
+                // Проверка на конкретные тупые пароли
+                for (let wp of wrongPasswords) {
+                    if (password.toLowerCase() === wp.pwd.toLowerCase()) {
+                        attempts++;
+                        localStorage.setItem('vz_login_attempts', attempts.toString());
+                        errorEl.textContent = wp.msg + ' [ПОПЫТКА ' + attempts + ']';
+                        errorEl.style.display = 'block';
+                        setTimeout(function() { errorEl.style.display = 'none'; }, 3000);
+                        document.getElementById('passwordInput').value = '';
+                        return;
+                    }
+                }
+                
+                // Правильные пароли
+                const accessLevels = [
+                    { login: 'VZ', pwd: '01082024', redirect: 'vz-archive.html', msg: 'ДОСТУП РАЗРЕШЁН.' },
+                    { login: 'sibirskaya', pwd: '81', redirect: 'sibirskaya.html', msg: 'ДОСТУП К МАТЕРИАЛАМ СИБИРСКОЙ РАЗРЕШЁН.' },
+                    { login: 'GVR', pwd: '1813', redirect: 'gvr.html', msg: 'ДОСТУП К ФАЙЛАМ GVR РАЗРЕШЁН.' },
+                    { login: 'Andrey', pwd: '18062024', redirect: 'andrey.html', msg: 'ОГРАНИЧЕННЫЙ ДОСТУП РАЗРЕШЁН.' },
+                    { login: 'ShamanKapysta', pwd: '020760', redirect: 'shaman.html', msg: 'ШАМАН КАПУСТА ПРИВЕТСТВУЕТ ТЕБЯ.' },
+                    { login: 'AidKostya', pwd: '012812', redirect: 'aidkostya.html', msg: 'МЫ ВСЕГДА ЗДЕСЬ.' },
+                    { login: 'Admin', pwd: '12345', redirect: 'admin.html', msg: 'ТЫ СЕРЬЁЗНО? БЛЯТЬ.' }
+                ];
+                
+                let found = false;
+                for (let level of accessLevels) {
+                    if (level.login.toLowerCase() === login.toLowerCase() && level.pwd === password) {
+                        found = true;
+                        modalText.textContent = level.msg;
+                        modal.classList.add('active');
+                        
+                        setTimeout(function() {
+                            window.location.href = level.redirect;
+                        }, 1500);
+                        break;
+                    }
+                }
+                
+                if (!found) {
+                    attempts++;
+                    localStorage.setItem('vz_login_attempts', attempts.toString());
+                    
+                    let reaction = translations[currentLang].errorWrong;
+                    for (let ar of attemptReactions) {
+                        if (attempts >= ar.min) {
+                            reaction = ar.msg + ' [ПОПЫТКА ' + attempts + ']';
+                        }
+                    }
+                    
+                    errorEl.textContent = reaction;
+                    errorEl.style.display = 'block';
+                    setTimeout(function() { errorEl.style.display = 'none'; }, 3000);
+                    document.getElementById('passwordInput').value = '';
+                    
+                    if (attempts % 10 === 0) {
+                        document.body.classList.add('glitch-flash');
+                        setTimeout(function() { document.body.classList.remove('glitch-flash'); }, 300);
+                    }
+                }
+            }
+            
+            // Закрытие модалки
+            document.getElementById('modalClose').addEventListener('click', function() {
+                document.getElementById('responseModal').classList.remove('active');
+            });
+        })();
+    </script>
 </body>
 </html>
