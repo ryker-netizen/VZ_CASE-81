@@ -570,6 +570,51 @@
                             </div>
                         </div>
                     `;
+                                } else if (page === 'evidence') {
+                    content = `
+                        <div class="content-title" id="evidenceTitle">УЛИКИ</div>
+                        <div class="file-card" id="evidence1">
+                            <div class="file-header">ВИДЕО ВЗРЫВА</div>
+                            <div class="file-body">
+                                <a href="https://regnum.ru/video/player/YJP1063G2" target="_blank" style="color: var(--accent-bright);">REGnum</a>
+                            </div>
+                        </div>
+                        <div class="file-card" id="evidence2">
+                            <div class="file-header">ПОСТАНОВЛЕНИЕ СУДА</div>
+                            <div class="file-body">07.08.2024 // ДОМАШНИЙ АРЕСТ</div>
+                        </div>
+                        <div class="file-card" id="evidence3">
+                            <div class="file-header">ДОМ №81</div>
+                            <div class="file-body">СНЕСЁН 01.10.2024</div>
+                        </div>
+                    `;
+                } else if (page === 'audio') {
+                    content = `
+                        <div class="content-title" id="audioTitle">АУДИОЗАПИСИ</div>
+                        <div class="file-card" id="audio1">
+                            <div class="file-header">audio_001.mp3</div>
+                            <div class="file-body">Перехват 01.08.2024 // ВОСПРОИЗВЕДЕНИЕ НЕВОЗМОЖНО</div>
+                        </div>
+                        <div class="file-card" id="audio2">
+                            <div class="file-header">audio_002.mp3</div>
+                            <div class="file-body">Морзе-сигнал // ... --- ...</div>
+                        </div>
+                        <div class="file-card" id="audio3">
+                            <div class="file-header">audio_003.mp3</div>
+                            <div class="file-body">Шум пожара // ВОСПРОИЗВЕДЕНИЕ НЕВОЗМОЖНО</div>
+                        </div>
+                    `;
+                } else if (page === 'restricted') {
+                    content = `
+                        <div class="content-title" id="restrictedTitle">ОГРАНИЧЕННЫЙ ДОСТУП</div>
+                        <div class="file-card" id="restrictedCard">
+                            <div class="file-body" style="text-align: center;">
+                                <p>ДАННЫЙ РАЗДЕЛ ТРЕБУЕТ ДОПОЛНИТЕЛЬНОГО ПАРОЛЯ</p>
+                                <input type="password" id="restrictedPassword" placeholder="ВВЕДИТЕ ПАРОЛЬ" style="background: #050505; border: 1px solid #1a1a1a; color: #e0e0e0; padding: 10px; font-family: inherit; font-size: 0.8rem; letter-spacing: 2px; outline: none; width: 100%; margin-top: 15px; text-align: center;">
+                                <button onclick="checkRestricted()" style="background: #050505; border: 1px solid #8b0000; color: #e0e0e0; padding: 10px 20px; font-family: inherit; font-size: 0.7rem; letter-spacing: 2px; cursor: pointer; margin-top: 10px;">ПРОВЕРИТЬ</button>
+                            </div>
+                        </div>
+                    `;
                 } else if (page === 'terminal') {
                     window.location.href = 'terminal.html';
                     return;
