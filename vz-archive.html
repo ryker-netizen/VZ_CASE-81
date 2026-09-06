@@ -652,22 +652,123 @@
                     });
                 }
             }
-            function checkRestricted() {
-                const input = document.getElementById('restrictedPassword');
-                const pwd = input.value.trim();
-                
-                if (pwd === '020760') {
-                    window.location.href = 'shaman.html';
-                } else if (pwd === '012812') {
-                    window.location.href = 'aidkostya.html';
-                } else if (pwd === '1813') {
-                    window.location.href = 'gvr.html';
-                } else if (pwd === '18062024') {
-                    window.location.href = 'andrey.html';
-                } else {
-                    input.value = '';
-                    input.placeholder = 'НЕВЕРНЫЙ ПАРОЛЬ. БЛЯТЬ.';
-                }
+            // Счётчик попыток (запоминается навсегда)
+let attempts = parseInt(localStorage.getItem('vz_attempts') || '0');
+
+// Разные реакции на неверные пароли
+const wrongPasswords = [
+    { pwd: '12345', msg: 'БЛЯТЬ. СЕРЬЁЗНО? 12345?' },
+    { pwd: 'qwerty', msg: 'QWERTY? ТЫ ЧТО, В 2007 ГОДУ?' },
+    { pwd: 'password', msg: 'PASSWORD? ОРИГИНАЛЬНО. НЕТ.' },
+    { pwd: 'admin', msg: 'АДМИН? АХАХАХ.' },
+    { pwd: '123456', msg: '123456? это пиздец' },
+    { pwd: '111111', msg: '111111? СЕРЬЁЗНО?' },
+    { pwd: '000000', msg: '000000? НУ ТЫ И ЕБЛАН.' },
+    { pwd: 'vz', msg: 'VZ? БЛИЗКО. НО НЕТ.' },
+    { pwd: '81', msg: '81? ТЕПЛО. НО НЕ ТО.' },
+    { pwd: 'sibirskaya', msg: 'СИБИРСКАЯ? ХОРОШАЯ ПОПЫТКА. НО НЕТ.' },
+    { pwd: 'aidkostya', msg: 'АИД И КОСТЯ? ОНИ МЕРТВЫ. И ТЫ ТОЖЕ БУДЕШЬ ПОТОМ НАХУЙ.' },
+    { pwd: 'shaman', msg: 'ШАМАН? рукалицо рукалицо рукалицо.' },
+    { pwd: 'kapysta', msg: 'КАПУСТА? лошки баля.' },
+    { pwd: 'vitaly', msg: 'ВИТАЛИЙ? ОН ЗНАЕТ. НО НЕ ☐☐☐☐☐☐.' },
+    { pwd: 'andrey', msg: 'АНДРЕЙ? ОН ☐☐☐☐☐☐☐☐.' },
+    { pwd: 'gvr', msg: 'GVR? НЕ ПЛОХО. НО НЕТ.' },
+    { pwd: '1823', msg: '1823? ЧТО ЭТО? НЕТ.' },
+    { pwd: '2024', msg: '2024? ГОД ВЗРЫВА. НО НЕ ПАРОЛЬ.' },
+    { pwd: '2026', msg: '2026? ГОД ОТКРОВЕНИЯ. НО НЕ ПАРОЛЬ.' },
+    { pwd: '666', msg: 'Устраивает.' },
+    { pwd: 'хуй', msg: 'ХУЙ? СМЕШНО. НО НЕТ.' },
+    { pwd: 'блять', msg: 'БЛЯТЬ? ЭТО твоя мамаша, только не хватает буквы "Д".' },
+    { pwd: 'сука', msg: 'СУКА? НЕТ. НО ДА. НО НЕТ.' },
+    { pwd: 'пизда', msg: 'ПИЗДА? ХАХА. ТВОЯ.' },
+    { pwd: '01082024', msg: '01.08.2024? ЭТО ДАТА ВЗРЫВА. НО НЕ СЮДА.' },
+    { pwd: '25051999', msg: '25.05.1999? ДЕНЬ РОЖДЕНИЯ АИДА. НО НЕТ.' },
+    { pwd: '04122002', msg: '04.12.2002? ДЕНЬ РОЖДЕНИЯ КОСТИ. НО НЕТ.' },
+    { pwd: '67', msg: 'ты тупоголовый придурок нахуй.' }
+    { pwd: '300', msg: 'Трактористом буду я, отсосешь ты у меня.' }
+    { pwd: '52', msg: 'эй йоу' }
+    { pwd: '42', msg: 'Кемеровская область.' }
+];
+
+// Общие реакции по количеству попыток
+const attemptReactions = [
+    { min: 0, msg: 'НЕВЕРНЫЙ ПАРОЛЬ.' },
+    { min: 3, msg: 'НЕВЕРНО. ПОДУМАЙ ЕЩЁ.' },
+    { min: 5, msg: 'ТЫ ИЗДЕВАЕШЬСЯ?' },
+    { min: 8, msg: 'ПРЕКРАТИ. ТЫ НЕ УГАДАЕШЬ.' },
+    { min: 12, msg: 'СЕРЬЁЗНО? ЕЩЁ ПОПЫТКИ?' },
+    { min: 15, msg: 'ТЫ ЧИТАЛ ФАЙЛЫ? ТАМ ЕСТЬ ПОДСКАЗКИ.' },
+    { min: 20, msg: 'ТЕБЕ НЕ СТРАШНО? ОНИ ЖЕ СМОТРЯТ.' },
+    { min: 25, msg: 'АИД СМЕЁТСЯ НАД ТОБОЙ.' },
+    { min: 30, msg: 'КОСТЯ ТОЖЕ СМЕЁТСЯ.' },
+    { min: 40, msg: 'ТЫ ВООБЩЕ УСТАЛ УЖЕ? НЕТ?' },
+    { min: 50, msg: 'ПОЛТИННИК. НЕПЛОХО ДЛЯ ИДИОТА.' }
+];
+
+function checkRestricted() {
+    const input = document.getElementById('restrictedPassword');
+    const pwd = input.value.trim();
+    
+    // Правильные пароли
+    if (pwd === '020760') {
+        window.location.href = 'shaman.html';
+        return;
+    } else if (pwd === '012812') {
+        window.location.href = 'aidkostya.html';
+        return;
+    } else if (pwd === '1813') {
+        window.location.href = 'gvr.html';
+        return;
+    } else if (pwd === '18062024') {
+        window.location.href = 'andrey.html';
+        return;
+    }
+    
+    // Неверный пароль
+    attempts++;
+    localStorage.setItem('vz_attempts', attempts.toString());
+    
+    input.value = '';
+    
+    // Проверка на конкретные тупые пароли
+    for (let wp of wrongPasswords) {
+        if (pwd.toLowerCase() === wp.pwd.toLowerCase()) {
+            input.placeholder = wp.msg + ' [ПОПЫТКА ' + attempts + ']';
+            return;
+        }
+    }
+    
+    // Общая реакция по количеству попыток
+    let reaction = 'НЕВЕРНО. ПОПЫТКА ' + attempts + '.';
+    for (let ar of attemptReactions) {
+        if (attempts >= ar.min) {
+            reaction = ar.msg + ' [ПОПЫТКА ' + attempts + ']';
+        }
+    }
+    
+    input.placeholder = reaction;
+    
+    // Каждые 10 попыток — глитч
+    if (attempts % 10 === 0) {
+        document.body.classList.add('glitch-flash');
+        setTimeout(() => document.body.classList.remove('glitch-flash'), 300);
+    }
+    
+    // Каждые 15 попыток — секретное сообщение
+    if (attempts % 15 === 0) {
+        showSecretPopup('ПОДСКАЗКА: ДАТЫ ИМЕЮТ ЗНАЧЕНИЕ.');
+    }
+    
+    // После 30 попыток — сайт злится
+    if (attempts === 30) {
+        showSecretPopup('ТЫ СЕРЬЁЗНО НЕ СДАЁШЬСЯ?');
+    }
+    
+    // После 50 попыток — сюрприз
+    if (attempts === 50) {
+        showSecretPopup('ВОТ ТЕБЕ ПОДАРОК: 18.06.2024');
+    }
+}
             }
         })();
     </script>
