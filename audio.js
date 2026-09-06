@@ -476,9 +476,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     AudioSystem.setMode(mode);
     
-    document.addEventListener('click', function() {
-        AudioSystem.resume();
-    }, { once: true });
+document.addEventListener('click', function() {
+    AudioSystem.resume();
+}, { once: true });
+
+document.addEventListener('touchstart', function() {
+    AudioSystem.resume();
+}, { once: true });
+
+document.addEventListener('keydown', function() {
+    AudioSystem.resume();
+}, { once: true });
+
+setTimeout(function() {
+    AudioSystem.resume();
+}, 1000);
     
     document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
