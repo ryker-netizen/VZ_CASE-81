@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VZ // ARCHIVE</title>
+    <title>VZ 𓆨 ARCHIVE</title>
     <link rel="stylesheet" href="fix.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;700&display=swap');
@@ -378,7 +378,7 @@
         <div class="top-bar">
             <div class="top-left">
                 <span class="top-text" id="sessionInfo">SESSION: VZ_ARCHIVE</span>
-                <span class="top-text" id="userInfo">USER: VZ</span>
+                <span class="top-text" id="userInfo">USER: VZ_subscriber</span>
                 <span class="top-text" id="accessLevel">ACCESS LEVEL: MAIN</span>
             </div>
             <button class="logout-btn" id="logoutBtn">ВЫХОД</button>
@@ -479,12 +479,12 @@
                 headerClickCount++;
                 
                 if (headerClickCount === 3) {
-                    showSecretPopup('ТЫ НАШЁЛ СЕКРЕТ. НО ЭТО ЕЩЁ НЕ ВСЁ.');
+                    showSecretPopup('ЭТО ЕЩЁ НЕ ВСЁ.');
                     document.body.classList.add('glitch-flash');
                     setTimeout(() => document.body.classList.remove('glitch-flash'), 300);
                     headerClickCount = 0;
                 } else if (headerClickCount === 5) {
-                    showSecretPopup('01.08.2024 — ОНИ УМЕРЛИ. НО КТО ВЕДЁТ КАНАЛ?');
+                    showSecretPopup('01.08.2024');
                     document.body.classList.add('glitch-flash');
                     setTimeout(() => document.body.classList.remove('glitch-flash'), 300);
                     headerClickCount = 0;
@@ -508,7 +508,7 @@
             document.querySelector('[data-page="dossiers"]').addEventListener('mouseenter', function() {
                 dossiersHover++;
                 if (dossiersHover === 5) {
-                    showSecretPopup('АИД: «Костя, блять...» / КОСТЯ: «Аид, блять...»');
+                    showSecretPopup('"ого, крыжовники"');
                     dossiersHover = 0;
                 }
             });
@@ -532,23 +532,23 @@
                     content = `
                         <div class="content-title" id="dossiersTitle">ДОСЬЕ</div>
                         <div class="file-card" id="aidosFile">
-                            <div class="file-header">ФАЙЛ: AIDOS_DMITRIY.doc</div>
+                            <div class="file-header">ФАЙЛ: DMITRIY.doc</div>
                             <div class="file-body">
                                 <p><strong>ИМЯ:</strong> Дмитрий (Аид)</p>
                                 <p><strong>ДАТА РОЖДЕНИЯ:</strong> 25.05.1999</p>
                                 <p><strong>СТАТУС:</strong> ПОГИБ ПРИ ВЗРЫВЕ 01.08.2024</p>
                                 <p><strong>РОЛЬ:</strong> СОЗДАТЕЛЬ VZ</p>
-                                <p><strong>ПОСЛЕДНЕЕ СООБЩЕНИЕ:</strong> «Костя, блять, я же говорил не трогать газ»</p>
+                                <p><strong>ПОСЛЕДНЕЕ СООБЩЕНИЕ:</strong> «ода, какой я боже секси»</p>
                             </div>
                         </div>
                         <div class="file-card" id="kostyaFile">
-                            <div class="file-header">ФАЙЛ: KOSTYA_KONSTANTIN.doc</div>
+                            <div class="file-header">ФАЙЛ: KOSTYA.doc</div>
                             <div class="file-body">
-                                <p><strong>ИМЯ:</strong> Константин (Костя)</p>
+                                <p><strong>ИМЯ:</strong> Константин</p>
                                 <p><strong>ДАТА РОЖДЕНИЯ:</strong> 04.12.2002</p>
                                 <p><strong>СТАТУС:</strong> ПОГИБ ПРИ ВЗРЫВЕ 01.08.2024</p>
                                 <p><strong>РОЛЬ:</strong> СОУЧРЕДИТЕЛЬ VZ</p>
-                                <p><strong>ПОСЛЕДНЕЕ СООБЩЕНИЕ:</strong> «Аид, блять, это ты газ не выключил»</p>
+                                <p><strong>ПОСЛЕДНЕЕ СООБЩЕНИЕ:</strong> «ПОЧЕМУ НАС ОПЯТЬ НИКТО НЕ РАЗБУДИЛ СУКИ БЛЯЬЬ 👊👊👊👊👊👊👊👊👊👊👊👊»</p>
                             </div>
                         </div>
                     `;
@@ -589,7 +589,7 @@
                     
                     // Клик по дате рождения Кости
                     document.querySelector('#kostyaFile p:nth-child(2)').addEventListener('click', function() {
-                        showSecretPopup('04.12.2002 — ОН БЫЛ МЛАДШЕ. НО НЕ ГЛУПЕЕ.');
+                        showSecretPopup('04.12.2002 — ОН БЫЛ МЛАДШЕ.');
                     });
                     
                     // Двойной клик по заголовку ДОСЬЕ
